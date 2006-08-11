@@ -13,7 +13,7 @@ Arg.parse speclist (fun s -> ()) usage_msg;
 let chan = stdin in
 
 let read_lines  =
-		let lex = Lex.create 100000 in
+		let lex = Lex.create 1000000 in
 	
 		let rec loop  () =
 			

@@ -52,8 +52,11 @@ let copy h =
     data = Array.copy h.data }
 
 let length h = h.size
-(*
+
 let resize hashfun tbl =
+	Printf.eprintf "resizing\n";
+	flush stderr;
+	begin
   let odata = tbl.data in
   let osize = Array.length odata in
   let nsize = min (2 * osize + 1) Sys.max_array_length in
@@ -61,16 +64,89 @@ let resize hashfun tbl =
     let ndata = Array.create nsize Empty in
     let rec insert_bucket = function
         Empty -> ()
-      | Cons(key, data, rest) ->
-          insert_bucket rest; (* preserve original order of elements *)
-          let nidx = (hashfun key) mod nsize in
-          ndata.(nidx) <- Cons(key, data, ndata.(nidx)) in
+      | Cons(onode) ->
+         (* preserve ordering, insert first the first *)
+		 begin
+          let nidx = (hashfun onode.key) mod nsize in
+          match ndata.(nidx) with
+			(* this is empty bucket *)
+	 		Empty -> ndata.(nidx) <- 	Cons( {next = Empty; 
+										  key = onode.key; 
+										  value = onode.value} ) ;
+			| Cons(node) ->
+				(* insert it to the tail *)
+				let rec aux prev  =
+					 match prev.next with
+					Empty -> prev.next <- Cons ({next = Empty; key = onode.key; value = onode.value});
+                    | Cons(nnode) -> aux nnode ;
+				in
+				aux node ;
+		  
+		 insert_bucket onode.next ;
+		end
+	in			
     for i = 0 to osize - 1 do
       insert_bucket odata.(i)
     done;
     tbl.data <- ndata;
+	Printf.eprintf "resized\n";
+	flush stderr;
   end
+end
+	let iter f h =
+	  let rec do_bucket = function
+	      Empty ->
+	        ()
+	    | Cons(node) ->
+	       f node.key node.value; do_bucket node.next in
+	  let d = h.data in
+	  for i = 0 to Array.length d - 1 do
+	    do_bucket d.(i)
+	  done
 
+
+	let update h k  update_fun  default_info =
+
+
+	  let i = (hash k) mod (Array.length h.data) in
+	  let l = h.data.(i) in
+	  match l with
+		| Empty ->  h.data.(i) <-		Cons( {next = Empty; 
+									  key = k; 
+									  value = default_info} ) ;
+									    h.size <- succ h.size;
+									    if h.size > Array.length h.data lsl 1 then resize hash h ;
+
+		| Cons(head) -> 
+						let rec aux prev next = match next with
+	                        | Empty -> prev.next <- Cons( {next = Empty; 
+													  key = k; 
+													  value = default_info} ) ;
+									h.size <- succ h.size;
+									if h.size > Array.length h.data lsl 1 then resize hash h			
+							| Cons(node) ->
+								if compare k node.key = 0 then
+									begin
+									(* update info *)
+									node.value <- (update_fun node.value) ;
+								    (* move front the node *)
+									prev.next <- node.next ;
+									node.next <- Cons(head) ;
+									h.data.(i) <- Cons( node) ;
+								end
+								else
+									aux node node.next ;
+						in
+						if compare k head.key = 0 then
+							begin
+							(* data is at front *)
+							head.value <- (update_fun head.value) ;
+						end
+						else 
+							aux head head.next
+	
+		
+(*
 let rec find_rec key = function
     Empty ->
       raise Not_found
@@ -103,52 +179,6 @@ let find_all h key =
 *)
 
 
-let iter f h =
-  let rec do_bucket = function
-      Empty ->
-        ()
-    | Cons(node) ->
-       f node.key node.value; do_bucket node.next in
-  let d = h.data in
-  for i = 0 to Array.length d - 1 do
-    do_bucket d.(i)
-  done
-
-						
-let update h k  update_fun  default_info =
-
-
-  let i = (hash k) mod (Array.length h.data) in
-  let l = h.data.(i) in
-  match l with
-	| Empty ->  h.data.(i) <-		Cons( {next = Empty; 
-								  key = k; 
-								  value = default_info} ) ;
-	| Cons(head) -> let p = ref head in
-					let rec aux prev next = match next with
-                        | Empty -> prev.next <- Cons( {next = Empty; 
-												  key = k; 
-												  value = default_info} ) ;
-						| Cons(node) ->
-							if compare k node.key = 0 then
-								begin
-								(* update info *)
-								node.value <- (update_fun node.value) ;
-							    (* move front the node *)
-								prev.next <- node.next ;
-								node.next <- Cons(head) ;
-								h.data.(i) <- Cons( node) ;
-							end
-							else
-								aux node node.next ;
-					in
-					if compare k head.key = 0 then
-						begin
-						(* data is at front *)
-						head.value <- (update_fun head.value) ;
-					end
-					else 
-						aux head head.next
 (*
   try
     h.data.(i) <- replace_bucket l
