@@ -105,9 +105,7 @@ end
 	  done
 
 
-	let update h k  update_fun  default_info =
-
-
+let update h k  update_fun  default_info =
 	  let i = (hash k) mod (Array.length h.data) in
 	  let l = h.data.(i) in
 	  match l with
@@ -117,76 +115,34 @@ end
 									    h.size <- succ h.size;
 									(*    if h.size > Array.length h.data lsl 1 then resize hash h ;
 *)
-		| Cons(head) -> 
-						let rec aux prev next = match next with
-	                        | Empty -> prev.next <- Cons( {next = Empty; 
-													  key = k; 
-													  value = default_info} ) ;
-									h.size <- succ h.size;
+		| Cons(node1) -> 
+						let rec update_rec nodex = match nodex.next with
+	                        | Empty -> nodex.next <- Cons( {next = Empty;  key = k; value = default_info} ) ;
+									   h.size <- succ h.size;
 								(*	if h.size > Array.length h.data lsl 1 then resize hash h		*)	
-							| Cons(node) ->
-								if String.compare k node.key = 0 then
+							| Cons(nodexx) ->
+								if String.compare k nodexx.key = 0 then
 									begin
 									(* update info *)
-									node.value <- (update_fun node.value) ;
+									nodexx.value <- (update_fun nodexx.value) ;
 								    (* move front the node *)
-									prev.next <- node.next ;
-									node.next <- Cons(head) ;
-									h.data.(i) <- Cons( node) ;
+									nodex.next <- nodexx.next ;
+									nodexx.next <- Cons(node1) ;
+									h.data.(i) <- Cons( nodexx) ;
 								end
 								else
-									aux node node.next ;
+									update_rec nodexx ;
 						in
-						if String.compare k head.key = 0 then
+						if String.compare k node1.key = 0 then
 							begin
 							(* data is at front *)
-							head.value <- (update_fun head.value) ;
-						end
+							node1.value <- (update_fun node1.value) ;
+							end
 						else 
-							aux head head.next
+							update_rec node1
 	
 		
-(*
-let add h k v =
 
-
-  let i = (hash k) mod (Array.length h.data) in
-  let bucket = h.data.(i) in
-  match bucket with
-	| Empty ->  h.data.(i) <-	Cons( {next = Empty; key = k; value = v} ) ;
-								    h.size <- succ h.size;
-								
-	| Cons(head) -> 
-					let rec aux prev next = match next with
-                        | Empty -> prev.next <- Cons( {next = Empty; 
-												  key = k; 
-												  value = default_info} ) ;
-								h.size <- succ h.size;
-							(*	if h.size > Array.length h.data lsl 1 then resize hash h		*)	
-						| Cons(node) ->
-							if String.compare k node.key = 0 then
-								begin
-								(* update info *)
-								node.value <- (update_fun node.value) ;
-							    (* move front the node *)
-								prev.next <- node.next ;
-								node.next <- Cons(head) ;
-								h.data.(i) <- Cons( node) ;
-							end
-							else
-								aux node node.next ;
-					in
-					if String.compare k head.key = 0 then
-						begin
-						(* data is at front *)
-						head.value <- (update_fun head.value) ;
-					end
-					else 
-						aux head head.next
-
-
-
-*)
 						
 
 let find h key v =
