@@ -115,17 +115,17 @@ end
 									  key = k; 
 									  value = default_info} ) ;
 									    h.size <- succ h.size;
-									    if h.size > Array.length h.data lsl 1 then resize hash h ;
-
+									(*    if h.size > Array.length h.data lsl 1 then resize hash h ;
+*)
 		| Cons(head) -> 
 						let rec aux prev next = match next with
 	                        | Empty -> prev.next <- Cons( {next = Empty; 
 													  key = k; 
 													  value = default_info} ) ;
 									h.size <- succ h.size;
-									if h.size > Array.length h.data lsl 1 then resize hash h			
+								(*	if h.size > Array.length h.data lsl 1 then resize hash h		*)	
 							| Cons(node) ->
-								if compare k node.key = 0 then
+								if String.compare k node.key = 0 then
 									begin
 									(* update info *)
 									node.value <- (update_fun node.value) ;
@@ -137,7 +137,7 @@ end
 								else
 									aux node node.next ;
 						in
-						if compare k head.key = 0 then
+						if String.compare k head.key = 0 then
 							begin
 							(* data is at front *)
 							head.value <- (update_fun head.value) ;

@@ -2,7 +2,7 @@ SOURCES = lexicon.mli btree.mli bst.ml btree.ml bursttrie.mli bursttrie.ml  hash
 RESULT = test
 #LIBDIRS=/usr/local/lib/ocamorph 
 #INCDIRS=/usr/local/lib/ocamorph
-
-all: nc
-#all: profiling-native-code
+export OCAMLNCFLAGS := -inline 10
+#all: nc
+all: profiling-native-code
 -include OCamlMakefile
