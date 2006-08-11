@@ -18,8 +18,8 @@ let read_lines  =
 		let rec loop  () =
 			
 			let word =  input_line chan in
-    (*     	Lex.update lex word (fun freq -> (succ freq)) (1) ; *)
-			incr (Lex.find lex word (ref 0)) ;
+         	Lex.update lex word (fun freq -> (succ freq)) (1) ; 
+		(*	incr (Lex.find lex word (ref 0)) ;*)
 			loop ();	
 		in
 		try
@@ -30,10 +30,10 @@ in
 	
 let lex = read_lines 
 in
-let print_word word freq =
+let print_word (word, freq) =
 	print_string word;
 	print_char '\t';
-	print_int !freq;
+	print_int freq;
 	print_newline ();
 in
-Lex.iter  print_word lex;
+Lex.siter  print_word lex;

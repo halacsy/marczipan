@@ -93,16 +93,35 @@ let resize hashfun tbl =
 	flush stderr;
   end
 end
-	let iter f h =
-	  let rec do_bucket = function
-	      Empty ->
-	        ()
-	    | Cons(node) ->
-	       f node.key node.value; do_bucket node.next in
-	  let d = h.data in
-	  for i = 0 to Array.length d - 1 do
-	    do_bucket d.(i)
-	  done
+
+let iter f h =
+  let rec do_bucket = function
+      Empty ->
+        ()
+    | Cons(node) ->
+       f node.key node.value; do_bucket node.next in
+  let d = h.data in
+  for i = 0 to Array.length d - 1 do
+    do_bucket d.(i)
+  done
+
+let bucket2list b = 
+	let rec aux node res = match node with
+		Empty -> res
+		| Cons(node) -> aux node.next ( (node.key, node.value) :: res)
+	in
+	aux b []
+	
+let siter f h =
+
+   let d = h.data in
+   for i = 0 to Array.length d - 1 do
+     let datalist = bucket2list d.(i) in
+	 let sdatalist = List.fast_sort (fun (key1,_) (key2,_) -> compare key1 key2) datalist in
+	 List.iter f sdatalist ;
+   done
+	
+
 
 
 let update h k  update_fun  default_info =
