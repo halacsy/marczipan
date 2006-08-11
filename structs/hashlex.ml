@@ -22,13 +22,20 @@ let hash = Hashtbl.hash
 (* We do dynamic hashing, and resize the table and rehash the elements
    when buckets become too long. *)
 
+type  ('a, 'b) bucketnode =
+  {mutable next: ('a, 'b) bucketlist;
+   key : 'a ;
+   mutable value : 'b }
+and ('a, 'b) bucketlist =
+    Empty
+  | Cons of  ('a, 'b) bucketnode
+;;
+
+						
 type ('a, 'b) t =
   { mutable size: int;                        (* number of elements *)
     mutable data: ('a, 'b) bucketlist array } (* the buckets *)
 
-and ('a, 'b) bucketlist =
-    Empty
-  | Cons of 'a * 'b * ('a, 'b) bucketlist
 
 let create initial_size =
   let s = min (max 1 initial_size) Sys.max_array_length in
@@ -45,7 +52,7 @@ let copy h =
     data = Array.copy h.data }
 
 let length h = h.size
-
+(*
 let resize hashfun tbl =
   let odata = tbl.data in
   let osize = Array.length odata in
@@ -93,19 +100,56 @@ let find_all h key =
       then d :: find_in_bucket rest
       else find_in_bucket rest in
   find_in_bucket h.data.((hash key) mod (Array.length h.data))
+*)
 
-let update h key  update_fun  default_info =
 
-		
-  let rec replace_bucket = function
+let iter f h =
+  let rec do_bucket = function
       Empty ->
-        raise Not_found
-    | Cons(k, info, next) ->
-        if compare k key = 0
-        then Cons(k, (update_fun info), next)
-        else Cons(k, info, replace_bucket next) in
-  let i = (hash key) mod (Array.length h.data) in
+        ()
+    | Cons(node) ->
+       f node.key node.value; do_bucket node.next in
+  let d = h.data in
+  for i = 0 to Array.length d - 1 do
+    do_bucket d.(i)
+  done
+
+						
+let update h k  update_fun  default_info =
+
+
+  let i = (hash k) mod (Array.length h.data) in
   let l = h.data.(i) in
+  match l with
+	| Empty ->  h.data.(i) <-		Cons( {next = Empty; 
+								  key = k; 
+								  value = default_info} ) ;
+	| Cons(head) -> let p = ref head in
+					let rec aux prev next = match next with
+                        | Empty -> prev.next <- Cons( {next = Empty; 
+												  key = k; 
+												  value = default_info} ) ;
+						| Cons(node) ->
+							if compare k node.key = 0 then
+								begin
+								(* update info *)
+								node.value <- (update_fun node.value) ;
+							    (* move front the node *)
+								prev.next <- node.next ;
+								node.next <- Cons(head) ;
+								h.data.(i) <- Cons( node) ;
+							end
+							else
+								aux node node.next ;
+					in
+					if compare k head.key = 0 then
+						begin
+						(* data is at front *)
+						head.value <- (update_fun head.value) ;
+					end
+					else 
+						aux head head.next
+(*
   try
     h.data.(i) <- replace_bucket l
   with Not_found ->
@@ -121,16 +165,7 @@ let mem h key =
       compare k key = 0 || mem_in_bucket rest in
   mem_in_bucket h.data.((hash key) mod (Array.length h.data))
 
-let iter f h =
-  let rec do_bucket = function
-      Empty ->
-        ()
-    | Cons(k, d, rest) ->
-        f k d; do_bucket rest in
-  let d = h.data in
-  for i = 0 to Array.length d - 1 do
-    do_bucket d.(i)
-  done
+
 
 let fold f h init =
   let rec do_bucket b accu =
@@ -261,3 +296,4 @@ module Make(H: HashedType): (S with type key = H.t) =
     let fold = fold
     let length = length
   end
+*)
