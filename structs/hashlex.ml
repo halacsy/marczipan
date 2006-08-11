@@ -147,25 +147,104 @@ end
 	
 		
 (*
-let rec find_rec key = function
-    Empty ->
-      raise Not_found
-  | Cons(k, d, rest) ->
-      if compare key k = 0 then d else find_rec key rest
+let add h k v =
 
-let find h key =
-  match h.data.((hash key) mod (Array.length h.data)) with
-    Empty -> raise Not_found
-  | Cons(k1, d1, rest1) ->
-      if compare key k1 = 0 then d1 else
-      match rest1 with
-        Empty -> raise Not_found
-      | Cons(k2, d2, rest2) ->
-          if compare key k2 = 0 then d2 else
-          match rest2 with
-            Empty -> raise Not_found
-          | Cons(k3, d3, rest3) ->
-              if compare key k3 = 0 then d3 else find_rec key rest3
+
+  let i = (hash k) mod (Array.length h.data) in
+  let bucket = h.data.(i) in
+  match bucket with
+	| Empty ->  h.data.(i) <-	Cons( {next = Empty; key = k; value = v} ) ;
+								    h.size <- succ h.size;
+								
+	| Cons(head) -> 
+					let rec aux prev next = match next with
+                        | Empty -> prev.next <- Cons( {next = Empty; 
+												  key = k; 
+												  value = default_info} ) ;
+								h.size <- succ h.size;
+							(*	if h.size > Array.length h.data lsl 1 then resize hash h		*)	
+						| Cons(node) ->
+							if String.compare k node.key = 0 then
+								begin
+								(* update info *)
+								node.value <- (update_fun node.value) ;
+							    (* move front the node *)
+								prev.next <- node.next ;
+								node.next <- Cons(head) ;
+								h.data.(i) <- Cons( node) ;
+							end
+							else
+								aux node node.next ;
+					in
+					if String.compare k head.key = 0 then
+						begin
+						(* data is at front *)
+						head.value <- (update_fun head.value) ;
+					end
+					else 
+						aux head head.next
+
+
+
+*)
+						
+
+let find h key v =
+	let ix = (hash key) mod (Array.length h.data) in
+    match h.data.(ix) with
+       Empty -> begin
+					h.data.(ix) <- 	Cons( {next = Empty; key = key; value = v} ) ;
+					v
+				end
+       | Cons(node1) ->
+           if compare key node1.key = 0 then node1.value else
+           match node1.next with
+               Empty -> begin
+							node1.next <- 	Cons( {next = Empty; key = key; value = v} ) ;
+							v
+						end
+             | Cons(node2) ->
+                  if compare key node2.key = 0 then 
+				  begin
+					node1.next <- node2.next ;
+					node2.next <- Cons(node1) ;
+					h.data.(ix) <- Cons(node2) ;
+					node2.value
+				  end
+				  else
+          		     match node2.next with
+                        Empty -> begin
+										node2.next <- 	Cons( {next = Empty; key = key; value = v} ) ;
+										v
+									end
+                        | Cons(node3) ->
+              				if compare key node3.key = 0 then 
+							begin
+ 							    node2.next <- node3.next;
+								node3.next <- Cons(node1);
+								h.data.(ix) <- Cons(node3);
+								node3.value;
+							end
+							else 
+								let rec find_rec nodex = match nodex.next with
+								    Empty ->        begin
+														nodex.next <- 	Cons( {next = Empty; key = key; value = v} ) ;
+														v
+													end
+								  | Cons(nodexx) ->
+								      if compare key nodexx.key = 0 then
+								      begin 
+										nodex.next <- nodexx.next ;
+										nodexx.next <- Cons(node1);
+										h.data.(ix) <- Cons(nodexx);
+										nodexx.value
+									  end
+								      else find_rec nodexx
+								in
+								find_rec node3
+								
+
+(*
 
 let find_all h key =
   let rec find_in_bucket = function
