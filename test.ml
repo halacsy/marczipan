@@ -36,5 +36,5 @@ let print_word (word, freq) =
 	print_int freq;
 	print_newline ();
 in
-Lex.print_bucket_stat lex ;
-(* Lex.siter  print_word lex; *)
+(* Lex.print_bucket_stat lex ; *)
+ Lex.siter  print_word lex; 

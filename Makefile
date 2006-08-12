@@ -3,6 +3,6 @@ RESULT = test
 #LIBDIRS=/usr/local/lib/ocamorph 
 #INCDIRS=/usr/local/lib/ocamorph
 export OCAMLNCFLAGS := -inline 10
-#all: nc
-all: profiling-native-code
+all: nc
+#all: profiling-native-code
 -include OCamlMakefile
