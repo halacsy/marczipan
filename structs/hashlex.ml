@@ -150,7 +150,7 @@ let update h k  update_fun  default_info =
 									   h.size <- succ h.size;
 								(*	if h.size > Array.length h.data lsl 1 then resize hash h		*)	
 							| Cons(nodexx) ->
-								if String.compare k nodexx.key = 0 then
+								if k = nodexx.key  then
 									begin
 									(* update info *)
 									nodexx.value <- (update_fun nodexx.value) ;
@@ -162,7 +162,7 @@ let update h k  update_fun  default_info =
 								else
 									update_rec nodexx ;
 						in
-						if String.compare k node1.key = 0 then
+						if  k = node1.key then
 							begin
 							(* data is at front *)
 							node1.value <- (update_fun node1.value) ;
