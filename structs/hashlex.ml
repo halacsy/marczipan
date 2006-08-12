@@ -121,8 +121,18 @@ let siter f h =
 	 List.iter f sdatalist ;
    done
 	
-
-
+let print_bucket_stat h =
+	let hist = Hashtbl.create 20 in
+	let d = h.data in
+	begin
+	 for i = 0 to Array.length d - 1 do
+	     let len = List.length (bucket2list d.(i)) in
+		 try
+		 	incr (Hashtbl.find hist len) ;
+		 with Not_found -> Hashtbl.add hist len (ref 1);
+	   done ;
+	   Hashtbl.iter  (fun k f -> Printf.eprintf "%d\t%d\n" k !f) hist ;
+	end
 
 let update h k  update_fun  default_info =
 	  let i = (hash k) mod (Array.length h.data) in
