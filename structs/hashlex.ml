@@ -48,18 +48,17 @@ let clear h =
   h.size <- 0
 
 
-let strcmp s1 s2 =
-	let l1 = String.length s1 in
-	let l2 = String.length s2 in
-	if (l1 <> l2) then false else
-	let m = (min l1 l2) - 1 in
-	let i = ref 0 in
-	while((!i < m) && s1.[!i] = s2.[!i] ) do
-		incr i
-	done ;
-	try
-		s1.[!i] = s2.[!i] 
-	with Invalid_argument(_) -> false
+let eq_str s1 s2 =
+   let l1 = String.length s1 in
+   if l1 <> String.length s2 then
+     false
+   else
+     try
+       for i = 0 to pred l1 do
+         if s1.[i] <> s2.[i] then raise Exit
+       done;
+       true
+     with Exit -> false;;
 
 let strcmp2 s1 s2 =
 	let l1 = String.length s1 in
@@ -72,6 +71,8 @@ let strcmp2 s1 s2 =
 		strcmp_rec (succ ix)
 	in
 	strcmp_rec 0
+
+let strcmp s1 s2 = String.compare s1 s2 = 0
 	
 let copy h =
   { size = h.size;
@@ -176,7 +177,7 @@ let update h k  update_fun  default_info =
 									   h.size <- succ h.size;
 								(*	if h.size > Array.length h.data lsl 1 then resize hash h		*)	
 							| Cons(nodexx) ->
-								if strcmp2 k nodexx.key  then
+								if strcmp k nodexx.key  then
 									begin
 									(* update info *)
 									nodexx.value <- (update_fun nodexx.value) ;
@@ -188,7 +189,7 @@ let update h k  update_fun  default_info =
 								else
 									update_rec nodexx ;
 						in
-						if  strcmp2 k node1.key then
+						if  strcmp k node1.key then
 							begin
 							(* data is at front *)
 							node1.value <- (update_fun node1.value) ;
