@@ -3,12 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>test.ml</string>
+	<string>hashlex.ml</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>btree.ml</string>
+			<key>lastUsed</key>
+			<date>2006-07-28T09:44:41Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -18,25 +20,27 @@
 			<key>filename</key>
 			<string>bursttrie.ml</string>
 			<key>lastUsed</key>
-			<date>2006-07-25T16:28:50Z</date>
+			<date>2006-08-08T22:04:22Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>bursttrie.mli</string>
+			<key>lastUsed</key>
+			<date>2006-07-28T09:59:18Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test.ml</string>
 			<key>lastUsed</key>
-			<date>2006-07-25T16:28:50Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2006-08-14T14:12:44Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>hashlex.ml</string>
 			<key>lastUsed</key>
-			<date>2006-07-25T16:20:17Z</date>
+			<date>2006-08-16T16:10:22Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -46,13 +50,21 @@
 		</dict>
 		<dict>
 			<key>filename</key>
+			<string>bst.ml</string>
+			<key>lastUsed</key>
+			<date>2006-07-27T21:49:48Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
 			<string>lexicon.mli</string>
+			<key>lastUsed</key>
+			<date>2006-07-27T11:20:24Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>Makefile</string>
 			<key>lastUsed</key>
-			<date>2006-07-25T16:25:44Z</date>
+			<date>2006-08-12T09:13:19Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -64,9 +76,53 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>26</integer>
+				<integer>0</integer>
 				<key>line</key>
 				<integer>5</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>bst.ml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>56</integer>
+				<key>line</key>
+				<integer>11</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>25</integer>
+				<key>line</key>
+				<integer>11</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>56</integer>
+				<key>line</key>
+				<integer>11</integer>
+			</dict>
+		</dict>
+		<key>btree.ml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>16</integer>
+				<key>line</key>
+				<integer>4</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -78,28 +134,58 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>12</integer>
+				<integer>24</integer>
 				<key>line</key>
-				<integer>19</integer>
+				<integer>31</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>88</integer>
+			<integer>16</integer>
+		</dict>
+		<key>bursttrie.mli</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>60</integer>
+				<key>line</key>
+				<integer>27</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>2</integer>
 		</dict>
 		<key>hashlex.ml</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>37</integer>
+				<integer>18</integer>
 				<key>line</key>
-				<integer>12</integer>
+				<integer>63</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>59</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>419</integer>
+			</dict>
 		</dict>
 		<key>hashlex.mli</key>
 		<dict>
@@ -115,32 +201,65 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>lexicon.mli</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>13</integer>
+				<key>line</key>
+				<integer>3</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>test.ml</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>5</integer>
+				<integer>43</integer>
 				<key>line</key>
-				<integer>20</integer>
+				<integer>10</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>11</integer>
+			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>4</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>43</integer>
+				<key>line</key>
+				<integer>10</integer>
+			</dict>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
-		<string>hashlex.mli</string>
 		<string>hashlex.ml</string>
+		<string>lexicon.mli</string>
+		<string>bst.ml</string>
 		<string>test.ml</string>
+		<string>bursttrie.mli</string>
+		<string>btree.ml</string>
 		<string>bursttrie.ml</string>
 		<string>Makefile</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{513, 357}, {720, 403}}</string>
+	<string>{{307, 301}, {931, 529}}</string>
 </dict>
 </plist>

@@ -1,4 +1,4 @@
-module Lex = (Hashlex)
+module Lex = (Hashlexhas)
 
 
 let _ = 
