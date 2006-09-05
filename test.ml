@@ -1,4 +1,4 @@
-module Lex = (Hashlex)
+module Lex = Mfhash.Make (Hashlex.HashedString)
 
 
 let _ = 
