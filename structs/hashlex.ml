@@ -72,7 +72,7 @@ let strcmp2 s1 s2 =
 	in
 	strcmp_rec 0
 
-let strcmp s1 s2 = String.compare s1 s2 = 0
+let strcmp (s1) (s2) = (s1 = s2)  
 	
 let copy h =
   { size = h.size;
