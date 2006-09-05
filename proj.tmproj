@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>hashlex.ml</string>
+	<string>hashlexhas.ml</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -32,15 +32,21 @@
 			<key>filename</key>
 			<string>test.ml</string>
 			<key>lastUsed</key>
-			<date>2006-08-14T14:12:44Z</date>
+			<date>2006-08-18T18:49:13Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>hashlexhas.ml</string>
+			<key>lastUsed</key>
+			<date>2006-08-18T18:49:13Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>hashlex.ml</string>
 			<key>lastUsed</key>
-			<date>2006-08-16T16:10:22Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2006-08-18T18:31:18Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -64,7 +70,7 @@
 			<key>filename</key>
 			<string>Makefile</string>
 			<key>lastUsed</key>
-			<date>2006-08-12T09:13:19Z</date>
+			<date>2006-08-18T18:36:31Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -78,7 +84,7 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>5</integer>
+				<integer>4</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -201,6 +207,20 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>hashlexhas.ml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>lexicon.mli</key>
 		<dict>
 			<key>caret</key>
@@ -220,35 +240,20 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>43</integer>
+				<integer>24</integer>
 				<key>line</key>
-				<integer>10</integer>
+				<integer>0</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>4</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>43</integer>
-				<key>line</key>
-				<integer>10</integer>
-			</dict>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
 		<string>hashlex.ml</string>
+		<string>hashlexhas.ml</string>
 		<string>lexicon.mli</string>
 		<string>bst.ml</string>
 		<string>test.ml</string>
