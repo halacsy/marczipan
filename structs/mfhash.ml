@@ -17,8 +17,8 @@ module type S =
 	val sorted_iter : (keyt -> 'a -> unit) -> 'a t -> unit 
 	val print_bucket_stat : 'a t -> unit
 	val find : 'a t -> keyt -> 'a
-	val update : 'a  t -> keyt -> ('a -> 'a) -> 'a -> unit 
- 	val add_or_replace : 'a t -> keyt -> 'a -> unit 
+	val update : 'a  t ->  'a  -> keyt  -> ('a -> 'a) -> unit  
+	val size : 'a t -> int
   end
 
 module Make(H: HashedType): (S with type keyt = H.t) =
@@ -50,7 +50,8 @@ let create initial_size =
   { size = 0; data = Array.make s Empty }
 
 
-
+let size h = h.size
+	
 let clear h =
   for i = 0 to Array.length h.data - 1 do
     h.data.(i) <- Empty
@@ -68,8 +69,7 @@ let copy h =
 let length h = h.size
 
 let resize hashfun tbl =
-	Printf.eprintf "resizing\n";
-	flush stderr;
+
 	begin
   let odata = tbl.data in
   let osize = Array.length odata in
@@ -103,8 +103,7 @@ let resize hashfun tbl =
       insert_bucket odata.(i)
     done;
     tbl.data <- ndata;
-	Printf.eprintf "resized\n";
-	flush stderr;
+	
   end
 end
 
@@ -176,19 +175,19 @@ let find h k   =
 	
 
 	
-let update h k  update_fun  default_info =
+let update h  default_info k  update_fun  =
 	 let i = (hash k) mod (Array.length h.data) in
 	 let l = h.data.(i) in
 	 match l with
-	| Empty ->  h.data.(i) <- Cons( {next = Empty;  key = k; value = default_info} ) ;
+	| Empty ->  h.data.(i) <- Cons( {next = Empty;  key = k; value = update_fun default_info} ) ;
 								    h.size <- succ h.size;
-								(*    if h.size > Array.length h.data lsl 1 then resize hash h ;
-	*)
+								    if h.size > Array.length h.data lsl 1 then resize hash h ;
+	
 	| Cons(node1) -> 
 					let rec update_rec nodex = match nodex.next with
-	                       | Empty -> nodex.next <- Cons( {next = Empty;  key = k; value = default_info} ) ;
+	                       | Empty -> nodex.next <- Cons( {next = Empty;  key = k; value = update_fun default_info} ) ;
 								   h.size <- succ h.size;
-							(*	if h.size > Array.length h.data lsl 1 then resize hash h		*)	
+								if h.size > Array.length h.data lsl 1 then resize hash h			
 						| Cons(nodexx) ->
 							if str_eq k nodexx.key  then
 								begin
@@ -210,7 +209,6 @@ let update h k  update_fun  default_info =
 					else 
 						update_rec node1
 
-let add_or_replace h k info =
-	update h k  (fun  _ -> info)  info
+
 
 end
