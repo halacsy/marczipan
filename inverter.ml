@@ -22,7 +22,11 @@ let empty_postinglist = []
 	
 let empty_terminfo = Terminfo(0, 0, empty_postinglist) 
 
-let empty = Inv_index(0, Lex.create 10)
+let empty = Inv_index(0, Lex.create 100000)
+	
+let number_of_tokens (Inv_index(tokens, _)) = tokens
+
+let number_of_types (Inv_index(_, lexicon)) = Lex.size lexicon
 	
 let add_term_accurance (Inv_index(tokens, lexicon)) doc term pos =		
 		let add_term_accurance  doc pos (Terminfo(df, tf, postinglist)) =  
