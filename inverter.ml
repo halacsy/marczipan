@@ -1,56 +1,52 @@
 module Lex = Mfhash.Make (Hashlex.HashedString)
 
-type posting =  Posting of int * (* doc_id *) 
-			            int *  (* freq *) 
-			  			int list (* positions *)
-			   
+type posting =  {doc_id : int;
+				 mutable freq : int;
+				 positions  : (int) Varray.t}
 
 
-type terminfo = Terminfo of
-					int *		(* df = hany dokumentumban szerpel *)
-	 				int *		(* tf hanyszor szerepel osszesen *)
-	 				posting list (* elofordulasok *)
+type terminfo = {mutable df: int;
+				 mutable tf : int;
+				 mutable postings :  posting list}
 				
 
-type t = Inv_index of
-	 				int *              (* number of tokens in the index*)
-	  				(terminfo) Lex.t 	(* lexicon maps terms and their posting list *)
-
-
-
+type t = {mutable tokens : int;
+		  lexicon        : (terminfo) Lex.t}
+		
+let new_posting doc_id pos = 
+	let t = {doc_id = doc_id; freq = 1; positions = Varray.create 2 0} in
+	Varray.add t.positions pos;
+	t
+	
 let empty_postinglist = [] 
 	
-let empty_terminfo = Terminfo(0, 0, empty_postinglist) 
-
-let empty = Inv_index(0, Lex.create 100000)
+let empty_terminfo = {df = 0; tf = 0; postings = empty_postinglist}
 	
-let number_of_tokens (Inv_index(tokens, _)) = tokens
-
-let number_of_types (Inv_index(_, lexicon)) = Lex.size lexicon
+let empty = {tokens = 0; lexicon = Lex.create 100000}
 	
-let add_term_accurance (Inv_index(tokens, lexicon)) doc term pos =		
-		let add_term_accurance  doc pos (Terminfo(df, tf, postinglist)) =  
-			let new_tf = succ tf in
+let number_of_tokens ii = ii.tokens
 
-			let (new_postinglist, new_df) = 
-			match postinglist with
-				| Posting(doc_id, freq, positions) :: tail when doc_id == doc -> 
-					(Posting(doc, (succ freq), pos :: positions) :: tail, df)
-                | _ -> 	 
-					(Posting(doc, 1, pos ::[]) :: postinglist, (succ df))
+let number_of_types ii = Lex.size ii.lexicon
+	
+let add_term_accurance ii doc term pos =		
+		let add_term_accurance  doc pos terminfo =  
+		
+			terminfo.tf <- terminfo.tf;
+			let _ = 
+			match terminfo.postings with
+				| posting :: tail when posting.doc_id == doc -> 
+					
+					posting.freq <- succ posting.freq;
+					Varray.add posting.positions pos 
+				
+                | _ -> 	
+	 				terminfo.df <- (succ terminfo.df) ;
+					terminfo.postings <- ((new_posting doc pos) :: terminfo.postings) 
 			in
-			Terminfo(new_df, new_tf, new_postinglist)
-		
-		in
-		Lex.update lexicon empty_terminfo term (add_term_accurance doc pos) ;
-		Inv_index (succ tokens, lexicon)
+			terminfo
 
-(*	
-let write (Inv_index(tokens, lexicon)) o = begin
-	Printf.eprintf "writing inv_index\n";
-	
-	output_binary_int o tokens ;
-	
-	let write_term_info term terminfos =
-		
-*)	
+		in
+		Lex.update ii.lexicon empty_terminfo term (add_term_accurance doc pos) ;
+		 ii.tokens <- succ ii.tokens;
+		ii
+
