@@ -14,7 +14,7 @@ type doc_term_indexer =   {inv_index : inv_index_state ;
 let start = {
 				doc_count  = 0;
 			 	last_doc   = -1;
-				terminfos  = InvIndex.empty;
+				terminfos  = (InvIndex.empty ());
 				doc_writer = Docinfo.create_writer "index";
 			}
 			
@@ -39,26 +39,31 @@ let add_term dti term pos =
 	iis.terminfos <- InvIndex.add_term_accurance iis.terminfos iis.last_doc term pos;
 	dti.doc_info  <- Docinfo.add_term_accurance dti.doc_info term pos 
 
-let end_run iis =
+let end_run iis = ()
+	(*
+	let 	(s, lex, postings, positions) = InvIndex.iterate_over iis.terminfos in
+		Printf.printf "calculated size is %d\n" s;
+			Printf.printf "terms %d postings %d positions %d \n" lex postings positions (*;
+	*)
 	let out = open_out_bin "index.inx" in
 	Printf.eprintf "writing inx" ;
-	flush_all;
+	flush_all ();
 	InvIndex.write out iis.terminfos ;
 	close_out out ;
 	Printf.eprintf "reading back" ;
-	flush_all;
+	flush_all ();
 	let inp = open_in_bin "index.inx" in
 	let iix = InvIndex.read inp in
 	Printf.printf "backed number of tokens:    %d\n" (InvIndex.number_of_tokens iix);
 	Printf.printf "backed number of types:     %d\n" (InvIndex.number_of_types iix)
-		
+	*)
 	
 let pretty_print   iis  =
 	Printf.printf "number of documents: %d\n" iis.doc_count;
 	Printf.printf "number of tokens:    %d\n" (InvIndex.number_of_tokens iis.terminfos);
 	Printf.printf "number of types:     %d\n" (InvIndex.number_of_types iis.terminfos)
-	
-
+(*	InvIndex.pretty_print iis.terminfos
+*)
 
  
 let proc_sentence invi sentence =
