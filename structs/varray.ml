@@ -7,7 +7,7 @@ let add va v =
 	va.last <- succ va.last ;
 	(* check the size of the buffer*)
 	let osize = Array.length va.buffer in
-	if (va.last == osize -1) then 
+	if (va.last == osize ) then 
 		begin
 		  (* double the length of the buffer *)
 		  let nsize = min (2 * osize + 1) Sys.max_array_length in

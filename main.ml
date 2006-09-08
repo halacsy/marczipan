@@ -57,7 +57,7 @@ let end_run iis =
 	let inp = open_in_bin "index.inx" in
 	let iix = InvIndex.read inp in
 	Timem.stop t ;
-	let 	(s2, lex2, postings2, positions2) = InvIndex.iterate_over iis.terminfos in
+	let 	(s2, lex2, postings2, positions2) = InvIndex.iterate_over iix in
 		Printf.printf "backed up calculated size is %d\n" s2;
 			Printf.printf "terms %d postings %d positions %d \n" lex2 postings2 positions2 ;
 			
