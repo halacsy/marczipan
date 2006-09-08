@@ -39,24 +39,27 @@ let add_term dti term pos =
 	iis.terminfos <- InvIndex.add_term_accurance iis.terminfos iis.last_doc term pos;
 	dti.doc_info  <- Docinfo.add_term_accurance dti.doc_info term pos 
 
-let end_run iis = ()
-	(*
+let end_run iis = 
+	let t = Timem.init () in
+	Timem.start t "iterating";
 	let 	(s, lex, postings, positions) = InvIndex.iterate_over iis.terminfos in
 		Printf.printf "calculated size is %d\n" s;
-			Printf.printf "terms %d postings %d positions %d \n" lex postings positions (*;
-	*)
+			Printf.printf "terms %d postings %d positions %d \n" lex postings positions ;
+	Timem.stop t;
+	
+	Timem.start t "writing inx";
 	let out = open_out_bin "index.inx" in
-	Printf.eprintf "writing inx" ;
-	flush_all ();
 	InvIndex.write out iis.terminfos ;
 	close_out out ;
-	Printf.eprintf "reading back" ;
-	flush_all ();
+	Timem.stop t;
+	
+	Timem.start t "reading inx";
 	let inp = open_in_bin "index.inx" in
 	let iix = InvIndex.read inp in
+	Timem.stop t ;
 	Printf.printf "backed number of tokens:    %d\n" (InvIndex.number_of_tokens iix);
 	Printf.printf "backed number of types:     %d\n" (InvIndex.number_of_types iix)
-	*)
+	
 	
 let pretty_print   iis  =
 	Printf.printf "number of documents: %d\n" iis.doc_count;
@@ -74,8 +77,10 @@ let proc_sentence invi sentence =
 let invi = start
 	
 let _ = 
-			
-Io.iter_sentence stdin ( proc_sentence invi ) ;			
+	let t = Timem.init () in
+	Timem.start t "indexing";			
+Io.iter_sentence stdin ( proc_sentence invi ) ;
+	Timem.stop t ;
 end_run invi;			
 pretty_print invi
 		

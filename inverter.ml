@@ -95,8 +95,10 @@ let read i =
 	let lexicon = Lex.create types in
 	let _ =
 	for n = 1 to types do
-		let (term, terminfo) = read_terminfo i in
+		let (term, terminfo) = read_terminfo i in ()
+		(*
 		Lex.update lexicon terminfo term (fun _ -> terminfo)
+	*)
 	done in
 	{tokens = tokens; lexicon = lexicon}
 	
