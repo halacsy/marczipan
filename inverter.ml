@@ -93,13 +93,15 @@ let read i =
 	let tokens = input_binary_int i in
 	let types  = input_binary_int i in
 	let lexicon = Lex.create types in
-	let _ =
+	let _ = try
 	for n = 1 to types do
-		let (term, terminfo) = read_terminfo i in ()
-		(*
+		let (term, terminfo) = read_terminfo i in 
+		
 		Lex.update lexicon terminfo term (fun _ -> terminfo)
-	*)
-	done in
+	
+	done
+	with End_of_file -> ()
+	in
 	{tokens = tokens; lexicon = lexicon}
 	
 let calculate_size i = 
