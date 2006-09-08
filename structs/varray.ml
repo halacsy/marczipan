@@ -1,10 +1,10 @@
 
 type 'a t = {default: 'a ; mutable last : int; mutable buffer : 'a array  }
 
-let create s def ={default = def; last = 0; buffer = Array.create  s def}
+let create s def ={default = def; last = -1; buffer = Array.create  s def}
 	
 let add va v =
-	
+	va.last <- succ va.last ;
 	(* check the size of the buffer*)
 	let osize = Array.length va.buffer in
 	if (va.last == osize -1) then 
@@ -14,13 +14,16 @@ let add va v =
 		  if nsize == osize then raise (Out_of_memory)  ;
 	      va.buffer <- Array.append va.buffer (Array.make (nsize-osize) va.default)
 	 	end ;
-	va.buffer.(va.last) <- v;
-	va.last <- succ va.last
+	va.buffer.(va.last) <- v
+	
 
 let iter f va =
-	for i = 0 to (va.last -1 ) do
+	if va.last >= 0 then
+	for i = 0 to (va.last ) do
 		f va.buffer.(i)
-	done
+	done 
+	
+let size va = va.last 
 (*	
 let test_varray = begin
 	let va = create 100000 0 in

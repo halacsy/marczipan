@@ -18,11 +18,11 @@ let new_posting doc_id pos =
 	Varray.add t.positions pos;
 	t
 	
-let empty_postinglist = [] 
+let empty_postinglist () = [] 
 	
-let empty_terminfo = {df = 0; tf = 0; postings = empty_postinglist}
+let empty_terminfo () = {df = 0; tf = 0; postings = empty_postinglist ()}
 	
-let empty = {tokens = 0; lexicon = Lex.create 100000}
+let empty () = {tokens = 0; lexicon = Lex.create 100000}
 	
 let number_of_tokens ii = ii.tokens
 
@@ -31,7 +31,7 @@ let number_of_types ii = Lex.size ii.lexicon
 let add_term_accurance ii doc term pos =		
 		let add_term_accurance  doc pos terminfo =  
 		
-			terminfo.tf <- terminfo.tf;
+			terminfo.tf <- succ terminfo.tf;
 			let _ = 
 			match terminfo.postings with
 				| posting :: tail when posting.doc_id == doc -> 
@@ -46,7 +46,8 @@ let add_term_accurance ii doc term pos =
 			terminfo
 
 		in
-		Lex.update ii.lexicon empty_terminfo term (add_term_accurance doc pos) ;
+
+		Lex.update ii.lexicon (empty_terminfo ()) term (add_term_accurance doc pos) ;
 		 ii.tokens <- succ ii.tokens;
 		ii
 
@@ -99,3 +100,62 @@ let read i =
 	done in
 	{tokens = tokens; lexicon = lexicon}
 	
+let calculate_size i = 
+	let s = ref 8 in
+	let lex = ref 0 in
+	let postings = ref 0 in
+	let positions = ref 0 in
+	let aux1 term terminfo =
+		s := !s + 4;
+		let l = ((String.length term) + 4) in
+		s := !s + l;
+		lex := !lex + l;
+		let aux2 posting =
+			s:= !s + 8;
+			postings := !postings + 8;
+			let p = ((Varray.size posting.positions)*4) in
+			s:= !s + p;
+			positions := !positions + p
+		in
+		List.iter aux2 terminfo.postings
+	in
+	let _ = Lex.iter aux1 i.lexicon in
+	(!s, !lex, !postings, !positions)
+	
+let iterate_over i = 
+		let s = ref 8 in
+		let lex = ref 0 in
+		let postings = ref 0 in
+		let positions = ref 0 in
+		let aux1 term terminfo =
+			s := !s + 4;
+			let l = ((String.length term) + 4) in
+			s := !s + l;
+			lex := !lex + l;
+			let aux2 posting =
+				s:= !s + 8;
+				postings := !postings + 8;
+				let p = ref 0 in
+				let aux3 pos = p := !p + 4 in
+				Varray.iter aux3 posting.positions ;
+				positions := !positions + !p;
+				s := !s + !p
+			in
+			List.iter aux2 terminfo.postings
+		in
+		let _ = Lex.iter aux1 i.lexicon in
+		(!s, !lex, !postings, !positions)
+		
+let pretty_print i = 
+		let aux1 term terminfo =
+			Printf.printf "term = %s tf = %d df = %d\n" term terminfo.tf terminfo.df ;
+			let aux2 posting =
+				Printf.printf "doc_id = %d freq = %d\n" posting.doc_id posting.freq;
+				let aux3 pos = Printf.printf "pos = %d\n" pos in
+				Varray.iter aux3 posting.positions ;
+
+			in
+			List.iter aux2 terminfo.postings
+		in
+		Printf.printf "tokens = %d\n" i.tokens;
+		Lex.iter aux1 i.lexicon 
