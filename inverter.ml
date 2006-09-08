@@ -54,19 +54,15 @@ let add_term_accurance ii doc term pos =
 let write_posting o posting =
 	output_binary_int o posting.doc_id;
 	output_binary_int o posting.freq;
-		let aux3 pos = Printf.printf "pos = %d\n" pos; output_binary_int o pos in
-	Varray.iter  (aux3) posting.positions
+	Varray.iter  (output_binary_int o) posting.positions
 	
 let read_posting i = 
 	let doc_id = input_binary_int i in
-	Printf.printf "posting reading doc_id = %d\n" doc_id ;
 	let freq   = input_binary_int i in
-	Printf.printf "posting reading freq = %d\n" freq ;
 	let ps = Varray.create freq 0 in
 	let _ =
 	for n = 1 to freq do
 		let x = (input_binary_int i) in
-			Printf.printf "readed position %d\n" x ;
 		Varray.add ps (x)
 	done in
 	{doc_id = doc_id; freq = freq; positions = ps}
@@ -80,10 +76,8 @@ let write_terminfo o term terminfo =
 	
 let read_terminfo i =
 	let term = Io.input_string i in
-	Printf.printf "readed str: %s with length %d\n" term (String.length term) ;
 	let tf   = input_binary_int  i in
 	let df   = input_binary_int i in
-	Printf.printf "reded tf %d df %df\n" tf df ;
 	let postings = ref [] in
 	let _ =
 	for n = 1 to df do
@@ -99,7 +93,6 @@ let write o ii =
 let read i =
 	let tokens = input_binary_int i in
 	let types  = input_binary_int i in
-	Printf.printf "readed tokens %d types %d\n" tokens types ;
 	let lexicon = Lex.create types in
 	let _ = try
 	for n = 1 to types do

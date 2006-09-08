@@ -69,7 +69,7 @@ let pretty_print   iis  =
 	Printf.printf "number of documents: %d\n" iis.doc_count;
 	Printf.printf "number of tokens:    %d\n" (InvIndex.number_of_tokens iis.terminfos);
 	Printf.printf "number of types:     %d\n" (InvIndex.number_of_types iis.terminfos)
-;	InvIndex.pretty_print iis.terminfos
+(*;	InvIndex.pretty_print iis.terminfos *)
 
 
  
