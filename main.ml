@@ -1,3 +1,5 @@
+module InvIndex = InvIndex2
+module Docinfo = Docinfo2
 
 type inv_index_state = { 
    						mutable	doc_count : int ;				(* number of documents *)

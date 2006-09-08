@@ -68,3 +68,24 @@ let print_sentence sentence =
 		 in
 		List.iter (print_pair) sentence
 ;;
+
+let write_string o s = 
+	let l = String.length s in
+	output_binary_int o l;
+	output o s 0 l
+	
+let read_string i =
+	let l = input_binary_int i in
+	let s = String.create l in
+	really_input i s 0 l ;
+	s
+(*	
+let _ =
+	let o = open_out_bin "/tmp/vacak" in
+	write_string o "hello, world";
+	write_string o "szia vilag";
+	 close_out o;
+	let i = open_in_bin "/tmp/vacak" in
+	Printf.printf "%s\n%s\n" (read_string i) (read_string i);
+	flush_all;
+*)

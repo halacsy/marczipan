@@ -45,3 +45,12 @@ let add_term_accurance (Inv_index(tokens, lexicon)) doc term pos =
 		Lex.update lexicon empty_terminfo term (add_term_accurance doc pos) ;
 		Inv_index (succ tokens, lexicon)
 
+(*	
+let write (Inv_index(tokens, lexicon)) o = begin
+	Printf.eprintf "writing inv_index\n";
+	
+	output_binary_int o tokens ;
+	
+	let write_term_info term terminfos =
+		
+*)	
