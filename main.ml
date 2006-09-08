@@ -1,5 +1,4 @@
-module InvIndex = InvIndex2
-module Docinfo = Docinfo2
+
 
 type inv_index_state = { 
    						mutable	doc_count : int ;				(* number of documents *)
@@ -40,6 +39,20 @@ let add_term dti term pos =
 	iis.terminfos <- InvIndex.add_term_accurance iis.terminfos iis.last_doc term pos;
 	dti.doc_info  <- Docinfo.add_term_accurance dti.doc_info term pos 
 
+let end_run iis =
+	let out = open_out_bin "index.inx" in
+	Printf.eprintf "writing inx" ;
+	flush_all;
+	InvIndex.write out iis.terminfos ;
+	close_out out ;
+	Printf.eprintf "reading back" ;
+	flush_all;
+	let inp = open_in_bin "index.inx" in
+	let iix = InvIndex.read inp in
+	Printf.printf "backed number of tokens:    %d\n" (InvIndex.number_of_tokens iix);
+	Printf.printf "backed number of types:     %d\n" (InvIndex.number_of_types iix)
+		
+	
 let pretty_print   iis  =
 	Printf.printf "number of documents: %d\n" iis.doc_count;
 	Printf.printf "number of tokens:    %d\n" (InvIndex.number_of_tokens iis.terminfos);
@@ -58,6 +71,6 @@ let invi = start
 let _ = 
 			
 Io.iter_sentence stdin ( proc_sentence invi ) ;			
-			
+end_run invi;			
 pretty_print invi
 		

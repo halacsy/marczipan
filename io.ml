@@ -69,12 +69,12 @@ let print_sentence sentence =
 		List.iter (print_pair) sentence
 ;;
 
-let write_string o s = 
+let output_string o s = 
 	let l = String.length s in
 	output_binary_int o l;
 	output o s 0 l
 	
-let read_string i =
+let input_string i =
 	let l = input_binary_int i in
 	let s = String.create l in
 	really_input i s 0 l ;

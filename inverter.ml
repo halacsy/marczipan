@@ -50,3 +50,52 @@ let add_term_accurance ii doc term pos =
 		 ii.tokens <- succ ii.tokens;
 		ii
 
+let write_posting o posting =
+	output_binary_int o posting.doc_id;
+	output_binary_int o posting.freq;
+	Varray.iter  (output_binary_int o) posting.positions
+	
+let read_posting i = 
+	let doc_id = input_binary_int i in
+	let freq   = input_binary_int i in
+	let positions = Varray.create freq 0 in
+	let _ =
+	for n = 1 to freq do
+		Varray.add positions (input_binary_int i)
+	done in
+	{doc_id = doc_id; freq = freq; positions = positions}
+	
+
+let write_terminfo o term terminfo = 
+	Io.output_string o term;
+	output_binary_int o terminfo.tf;
+	output_binary_int o terminfo.df;
+	List.iter (write_posting o) terminfo.postings
+	
+let read_terminfo i =
+	let term = Io.input_string i in
+	let tf   = input_binary_int  i in
+	let df   = input_binary_int i in
+	let postings = ref [] in
+	let _ =
+	for n = 1 to df do
+		postings := (read_posting i):: !postings
+	done in
+	(term, {tf = tf; df = df; postings = !postings})
+
+let write o ii =
+	output_binary_int o ii.tokens;
+	output_binary_int o (Lex.size ii.lexicon);
+	Lex.sorted_iter (write_terminfo o) ii.lexicon  
+	
+let read i =
+	let tokens = input_binary_int i in
+	let types  = input_binary_int i in
+	let lexicon = Lex.create types in
+	let _ =
+	for n = 1 to types do
+		let (term, terminfo) = read_terminfo i in
+		Lex.update lexicon terminfo term (fun _ -> terminfo)
+	done in
+	{tokens = tokens; lexicon = lexicon}
+	
