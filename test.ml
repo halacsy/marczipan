@@ -1,39 +1,13 @@
-module Lex = Mfhash.Make (Hashlex.HashedString)
+let _ =
+let t = Timem.init () in
+Timem.start t "reading inx";
+let inp = open_in_bin "index.inx" in
+let iix = InvIndex.read inp in
+Timem.stop t ;
+let 	(s2, lex2, postings2, positions2) = InvIndex.iterate_over iix in
+	Printf.printf "backed up calculated size is %d\n" s2;
+		Printf.printf "terms %d postings %d positions %d \n" lex2 postings2 positions2 ;
+		
+Printf.printf "backed number of tokens:    %d\n" (InvIndex.number_of_tokens iix);
+Printf.printf "backed number of types:     %d\n" (InvIndex.number_of_types iix)
 
-
-let _ = 
-let modulename = ref "btrie" in
-
-let speclist =
-    [("-struct", Arg.String (fun s -> modulename := s), "used datastructure : btree | btrie")]
-in 
-let usage_msg = "usage : test -struct btree | btrie" in
-Arg.parse speclist (fun s -> ()) usage_msg;
-
-let chan = stdin in
-
-let read_lines  =
-		let lex = Lex.create 100000000 in
-	
-		let rec loop  () =
-			
-			let word =  input_line chan in
-         	Lex.update lex word (fun freq -> (succ freq)) (1) ;
-			loop ();	
-		in
-		try
-	 	loop()
-		with End_of_file -> lex
-
-in
-	
-let lex = read_lines 
-in
-let print_word (word, freq) =
-	print_string word;
-	print_char '\t';
-	print_int freq;
-	print_newline ();
-in
-Lex.print_bucket_stat lex ; 
-(* Lex.siter  print_word lex; *)
