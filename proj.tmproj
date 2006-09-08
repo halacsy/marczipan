@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>hashlexhas.ml</string>
+	<string>invIndex.ml</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -38,15 +38,49 @@
 			<key>filename</key>
 			<string>hashlexhas.ml</string>
 			<key>lastUsed</key>
-			<date>2006-08-18T18:49:13Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2006-09-08T09:46:30Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>hashlex.ml</string>
 			<key>lastUsed</key>
 			<date>2006-08-18T18:31:18Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>timem.ml</string>
+			<key>lastUsed</key>
+			<date>2006-09-08T11:48:19Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>testrec.ml</string>
+			<key>lastUsed</key>
+			<date>2006-09-08T10:15:57Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>io.ml</string>
+			<key>selected</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>invIndex.ml</string>
+			<key>lastUsed</key>
+			<date>2006-09-08T12:43:16Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>indexer.ml</string>
+			<key>lastUsed</key>
+			<date>2006-09-08T12:43:16Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>varray.ml</string>
+			<key>lastUsed</key>
+			<date>2006-09-08T12:40:23Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -70,7 +104,7 @@
 			<key>filename</key>
 			<string>Makefile</string>
 			<key>lastUsed</key>
-			<date>2006-08-18T18:36:31Z</date>
+			<date>2006-09-08T11:39:50Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -82,9 +116,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>25</integer>
 				<key>line</key>
-				<integer>4</integer>
+				<integer>1</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -221,6 +255,34 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>indexer.ml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>72</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>52</integer>
+		</dict>
+		<key>invIndex.ml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>45</integer>
+				<key>line</key>
+				<integer>85</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>75</integer>
+		</dict>
 		<key>lexicon.mli</key>
 		<dict>
 			<key>caret</key>
@@ -249,11 +311,74 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>testrec.ml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>6</integer>
+				<key>line</key>
+				<integer>10</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+		</dict>
+		<key>timem.ml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>12</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>varray.ml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>14</integer>
+				<key>line</key>
+				<integer>20</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
 		<string>hashlex.ml</string>
 		<string>hashlexhas.ml</string>
+		<string>varray.ml</string>
+		<string>indexer.ml</string>
+		<string>timem.ml</string>
+		<string>invIndex.ml</string>
+		<string>testrec.ml</string>
 		<string>lexicon.mli</string>
 		<string>bst.ml</string>
 		<string>test.ml</string>

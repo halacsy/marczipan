@@ -57,7 +57,7 @@ let end_run iis =
 	let inp = open_in_bin "index.inx" in
 	let iix = InvIndex.read inp in
 	Timem.stop t ;
-	let 	(s2, lex2, postings2, positions2) = InvIndex.calculate_size iis.terminfos in
+	let 	(s2, lex2, postings2, positions2) = InvIndex.iterate_over iis.terminfos in
 		Printf.printf "backed up calculated size is %d\n" s2;
 			Printf.printf "terms %d postings %d positions %d \n" lex2 postings2 positions2 ;
 			
@@ -69,8 +69,8 @@ let pretty_print   iis  =
 	Printf.printf "number of documents: %d\n" iis.doc_count;
 	Printf.printf "number of tokens:    %d\n" (InvIndex.number_of_tokens iis.terminfos);
 	Printf.printf "number of types:     %d\n" (InvIndex.number_of_types iis.terminfos)
-(*	InvIndex.pretty_print iis.terminfos
-*)
+;	InvIndex.pretty_print iis.terminfos
+
 
  
 let proc_sentence invi sentence =

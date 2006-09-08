@@ -23,7 +23,7 @@ let iter f va =
 		f va.buffer.(i)
 	done 
 	
-let size va = va.last 
+let size va = (va.last + 1)
 (*	
 let test_varray = begin
 	let va = create 100000 0 in
