@@ -185,31 +185,29 @@ let update h  default_info k  update_fun  =
 								    if h.size > Array.length h.data lsl 1 then resize hash h ;
 	
 	| Cons(node1) -> 
-					let rec update_rec nodex = match nodex.next with
-	                       | Empty -> nodex.next <- Cons( {next = Empty;  key = k; value = update_fun default_info} ) ;
-								   h.size <- succ h.size;
-								if h.size > Array.length h.data lsl 1 then resize hash h			
-						| Cons(nodexx) ->
-							if str_eq k nodexx.key  then
-								begin
-								(* update info *)
-								nodexx.value <- (update_fun nodexx.value) ;
-							    (* move front the node *)
-								nodex.next <- nodexx.next ;
-								nodexx.next <- Cons(node1) ;
-								h.data.(i) <- Cons( nodexx) ;
-							end
-							else
-								update_rec nodexx ;
-					in
-					if  str_eq k node1.key then
-						begin
-						(* data is at front *)
-						node1.value <- (update_fun node1.value) ;
-						end
-					else 
-						update_rec node1
-
-
+		let rec update_rec nodex = match nodex.next with
+                     | Empty -> nodex.next <- Cons( {next = Empty;  key = k; value = update_fun default_info} ) ;
+					   h.size <- succ h.size;
+					if h.size > Array.length h.data lsl 1 then resize hash h			
+			| Cons(nodexx) ->
+				if str_eq k nodexx.key  then
+					begin
+					(* update info *)
+					nodexx.value <- (update_fun nodexx.value) ;
+				    (* move front the node *)
+					nodex.next <- nodexx.next ;
+					nodexx.next <- Cons(node1) ;
+					h.data.(i) <- Cons( nodexx) ;
+				end
+				else
+					update_rec nodexx ;
+		in
+		if  str_eq k node1.key then
+			begin
+			(* data is at front *)
+			node1.value <- (update_fun node1.value) ;
+			end
+		else 
+			update_rec node1
 
 end

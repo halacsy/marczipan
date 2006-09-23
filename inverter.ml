@@ -1,26 +1,8 @@
 module Lex = Mfhash.Make (Hashlex.HashedString)
 
-type posting =  {doc_id : int;
-				 mutable freq : int;
-				 positions  : (int) Varray.t}
-
-
-type terminfo = {mutable df: int;
-				 mutable tf : int;
-				 mutable postings :  posting list}
-				
-
 type t = {mutable tokens : int;
-		  lexicon        : (terminfo) Lex.t}
+		  lexicon        : (Terminfo.t) Lex.t}
 		
-let new_posting doc_id pos = 
-	let t = {doc_id = doc_id; freq = 1; positions = Varray.create 2 0} in
-	Varray.add t.positions pos;
-	t
-	
-let empty_postinglist () = [] 
-	
-let empty_terminfo () = {df = 0; tf = 0; postings = empty_postinglist ()}
 	
 let empty () = {tokens = 0; lexicon = Lex.create 100000}
 	
@@ -29,28 +11,10 @@ let number_of_tokens ii = ii.tokens
 let number_of_types ii = Lex.size ii.lexicon
 	
 let add_term_accurance ii doc term pos =		
-		let add_term_accurance  doc pos terminfo =  
-		
-			terminfo.tf <- succ terminfo.tf;
-			let _ = 
-			match terminfo.postings with
-				| posting :: tail when posting.doc_id == doc -> 
-					
-					posting.freq <- succ posting.freq;
-					Varray.add posting.positions pos 
-				
-                | _ -> 	
-	 				terminfo.df <- (succ terminfo.df) ;
-					terminfo.postings <- ((new_posting doc pos) :: terminfo.postings) 
-			in
-			terminfo
+		Lex.update ii.lexicon (Terminfo.empty ()) term (fun ti -> Terminfo.occurrence ti doc pos; ti) ;
+	    ii.tokens <- succ ii.tokens
 
-		in
-
-		Lex.update ii.lexicon (empty_terminfo ()) term (add_term_accurance doc pos) ;
-		 ii.tokens <- succ ii.tokens;
-		ii
-
+(*	
 let write_posting o posting =
 	output_binary_int o posting.doc_id;
 	output_binary_int o posting.freq;
@@ -150,17 +114,20 @@ let iterate_over i =
 		in
 		let _ = Lex.iter aux1 i.lexicon in
 		(!s, !lex, !postings, !positions)
-		
-let pretty_print i = 
-		let aux1 term terminfo =
-			Printf.printf "term = %s tf = %d df = %d\n" term terminfo.tf terminfo.df ;
-			let aux2 posting =
-				Printf.printf "doc_id = %d freq = %d\n" posting.doc_id posting.freq;
-				let aux3 pos = Printf.printf "pos = %d\n" pos in
-				Varray.iter aux3 posting.positions ;
+*)		
 
-			in
-			List.iter aux2 terminfo.postings
-		in
+
+let pretty_print i = 
+	let o = open_out_bin "terminfos" in
 		Printf.printf "tokens = %d\n" i.tokens;
-		Lex.iter aux1 i.lexicon 
+		let aux1 term terminfo =
+			Printf.printf "%s\n" term;
+			Terminfo.pretty_print terminfo;
+			Terminfo.write o terminfo
+		in
+		Lex.iter aux1 i.lexicon;
+		close_out o;
+		let i = open_in_bin "terminfos" in
+		Terminfo.pretty_print (Terminfo.read i);
+		Terminfo.pretty_print (Terminfo.read i);
+		Terminfo.pretty_print (Terminfo.read i);

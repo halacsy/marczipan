@@ -12,7 +12,7 @@ type doc_info =  {doc_id : int ; (* doc_id *)
 let empty doc_id = {doc_id = doc_id ; type_freqs = Lex.create default_type_freqs_size; tokens = 0 }
 
 let add_term_accurance di term pos =  
-	Lex.update di.type_freqs 1 term (succ) ;
+	Lex.update di.type_freqs 0 term (succ) ;
     di.tokens = (succ di.tokens);
 	di
 

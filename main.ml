@@ -36,12 +36,15 @@ let end_doc dti =
 		
 let add_term dti term pos =
 	let iis = dti.inv_index in
-	iis.terminfos <- InvIndex.add_term_accurance iis.terminfos iis.last_doc term pos;
+	InvIndex.add_term_accurance iis.terminfos iis.last_doc term pos;
 	dti.doc_info  <- Docinfo.add_term_accurance dti.doc_info term pos 
 
-let end_run iis = 
+let end_run iis = ()
+	(*
+
 	let t = Timem.init () in
 	Timem.start t "iterating";
+	
 	let 	(s, lex, postings, positions) = InvIndex.iterate_over iis.terminfos in
 		Printf.printf "calculated size is %d\n" s;
 			Printf.printf "terms %d postings %d positions %d \n" lex postings positions ;
@@ -63,13 +66,13 @@ let end_run iis =
 			
 	Printf.printf "backed number of tokens:    %d\n" (InvIndex.number_of_tokens iix);
 	Printf.printf "backed number of types:     %d\n" (InvIndex.number_of_types iix)
-	
+	*)
 	
 let pretty_print   iis  =
 	Printf.printf "number of documents: %d\n" iis.doc_count;
 	Printf.printf "number of tokens:    %d\n" (InvIndex.number_of_tokens iis.terminfos);
-	Printf.printf "number of types:     %d\n" (InvIndex.number_of_types iis.terminfos)
-(*;	InvIndex.pretty_print iis.terminfos *)
+	Printf.printf "number of types:     %d\n" (InvIndex.number_of_types iis.terminfos);
+	InvIndex.pretty_print iis.terminfos
 
 
  
