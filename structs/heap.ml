@@ -26,6 +26,10 @@ let consume = function
      Empty -> raise Queue_is_empty
    | Node(prio, elt, _, _) as queue -> (prio, elt, remove_top queue)
 
+let top_prior = function
+	 Empty -> raise Queue_is_empty
+   | Node(prio, _, _, _) -> prio
+	
 let consume_tops heap =
 	let rec aux l h =
 		let (prio, elt, tail) = consume h in
@@ -35,7 +39,7 @@ let consume_tops heap =
 		| _ -> (prio, elt::l, tail)
 	in
 	aux [] heap
-(**
+(*
 let _ =
 	let heap = empty in
 	let heap = insert heap 1 "a" in
@@ -48,4 +52,4 @@ let _ =
 	let (k, l, heap) = consume_tops heap in
 	print_int k ; print_endline (String.concat " " l) 
 	
-*)	
+*)

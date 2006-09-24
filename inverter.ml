@@ -7,7 +7,7 @@ type t = {mutable tokens : int;
 		}
 		
 	
-let empty max_tokens = {tokens = 0; lexicon = Lex.create 10; temp_files = [];  max_tokens_in_memory = max_tokens }
+let empty max_tokens = {tokens = 0; lexicon = Lex.create 10000; temp_files = [];  max_tokens_in_memory = max_tokens }
 	
 let number_of_tokens ii = ii.tokens
 

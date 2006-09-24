@@ -4,6 +4,7 @@ module type HashedType =
     type t
     val equal: t -> t -> bool
     val hash: t -> int
+	val compare: t -> t -> int
   end
 
 
@@ -16,7 +17,7 @@ module type S =
 	val copy :  'a t -> 'a  t
 	val iter : (keyt -> 'a -> unit) -> 'a  t -> unit
 	val sorted_iter : (keyt -> 'a -> unit) -> 'a t -> unit 
-	val print_bucket_stat : 'a t -> unit
+(* val print_bucket_stat : 'a t -> unit *)
 	val find : 'a t -> keyt -> 'a
 	val update : 'a  t ->  'a  -> keyt  -> ('a -> 'a) -> unit  
 	val size : 'a t -> int
@@ -119,22 +120,22 @@ let iter f h =
     do_bucket d.(i)
   done
 
-let bucket2list b = 
-	let rec aux node res = match node with
-		Empty -> res
-		| Cons(node) -> aux node.next ( (node.key, node.value) :: res)
-	in
-	aux b []
-	
+
+ 	
 let sorted_iter f h =
 
-   let d = h.data in
-   for i = 0 to Array.length d - 1 do
-     let datalist = bucket2list d.(i) in
-	 let sdatalist = List.fast_sort (fun (key1,_) (key2,_) -> compare key1 key2) datalist in
-	 List.iter (fun (key, value) -> f key value) sdatalist ;
-   done
-	
+   let add2list l b = 
+		let rec aux node res = match node with
+			Empty -> res
+			| Cons(node) -> aux node.next ( (node.key, node.value) :: res)
+		in
+		aux b l
+	in
+	let datalist = Array.fold_left add2list [] h.data in
+	 let sdatalist = List.fast_sort (fun (key1,_) (key2,_) -> H.compare key1 key2) datalist in
+	 List.iter (fun (key, value) -> f key value) sdatalist   
+
+(*	
 let print_bucket_stat h =
 	let hist = Hashtbl.create 20 in
 	let d = h.data in
@@ -147,7 +148,7 @@ let print_bucket_stat h =
 	   done ;
 	   Hashtbl.iter  (fun k f -> Printf.eprintf "%d\t%d\n" k !f) hist ;
 	end
-
+*)
 let find h k   =
 	  let i = (hash k) mod (Array.length h.data) in
 	  let l = h.data.(i) in

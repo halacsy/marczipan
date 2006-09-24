@@ -21,7 +21,6 @@ let merge_streams l = match l with
 	| Stream(_,term1,ti)::tail -> let merge ti str = match str with
 		 						Stream(_,term2, ti2) ->
 			 						let m = Terminfo.merge ti ti2 
-								
 									in m   
 									
 							  | _  -> raise (Invalid_argument "someone want to merge closed stream")
@@ -30,11 +29,11 @@ let merge_streams l = match l with
 	| _ -> 	raise (Invalid_argument "someone want to merge closed stream")
 	
 (** l streameket lepteti, es ha van meg bennunk cucc, akkor beteszi oket a heapbe *)	
-let fetch_streams l h =
+let fetch_streams h l =
  	let aux heap stream =
 		match  (fetch_next stream) with
 			Closed -> heap
-		 |  Stream(_, term, _) as stream -> Heap.insert heap  term stream
+		 |  Stream(_, term, ti) as stream -> Heap.insert heap  (term, Terminfo.last_doc ti) stream
 	in
 	List.fold_left aux h l
 	
@@ -42,18 +41,34 @@ let merge files =
 	(* megnyitjuk az osszes fajlt es beolvassuk az elso terminfoit, es heapbe rakjul *)
 	let aux heap file =
 		match open_terminfo_stream file with
-			 Stream(_, term, _) as stream -> Heap.insert heap  term stream
+			 Stream(_, term, ti) as stream -> Heap.insert heap  (term, Terminfo.last_doc ti) stream
 			| _ -> raise (Invalid_argument "someone want to merge closed stream")
 	in
-	let heap = List.fold_left aux Heap.empty files in
+	let heap = List.fold_left aux (Heap.empty) files in
 
+	let winner heap = 
+		let ((term,docid), stream, heap) = Heap.consume heap in
+		let rec aux heap streams =
+			try
+				let (nterm, docid) = Heap.top_prior heap in
+				if term = nterm then
+					let ((a,b), stream, heap) = Heap.consume heap in
+					aux heap (stream::streams) 
+				else
+		 			(streams, heap)
+			with Heap.Queue_is_empty -> (streams, heap)
+		in
+		let (streams, heap) = aux heap (stream::[]) in
+		(term, streams, heap) 
+	
+	in
 	let oc = open_out_bin "terminfos.merged" in
 	(* amit elfogyasztunk *)
-    let rec loop h =
-		let (term, winners, h) = Heap.consume_tops h in
+    let rec loop heap =
+		let (term, winners, heap) = winner heap in
 		let merged_terminfo = merge_streams winners in
 		let _ = Terminfo.write oc term merged_terminfo in
-		let heap = fetch_streams winners h in
+		let heap = fetch_streams heap winners in
 		loop heap
 	in
 	try

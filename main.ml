@@ -14,7 +14,7 @@ type doc_term_indexer =   {inv_index : inv_index_state ;
 let start = {
 				doc_count  = 0;
 			 	last_doc   = -1;
-				terminfos  = (InvIndex.empty 100 );
+				terminfos  = (InvIndex.empty 1000000 );
 				doc_writer = Docinfo.create_writer "index";
 			}
 			
