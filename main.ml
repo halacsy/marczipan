@@ -14,7 +14,7 @@ type doc_term_indexer =   {inv_index : inv_index_state ;
 let start = {
 				doc_count  = 0;
 			 	last_doc   = -1;
-				terminfos  = (InvIndex.empty ());
+				terminfos  = (InvIndex.empty 100 );
 				doc_writer = Docinfo.create_writer "index";
 			}
 			
@@ -31,7 +31,8 @@ let start_doc iis  =
 	
 let end_doc dti = 
 		let iis = dti.inv_index in
-		iis.doc_writer <- Docinfo.write iis.doc_writer dti.doc_info 
+		iis.doc_writer <- Docinfo.write iis.doc_writer dti.doc_info;
+		InvIndex.end_doc iis.terminfos 
 		
 		
 let add_term dti term pos =
@@ -39,34 +40,18 @@ let add_term dti term pos =
 	InvIndex.add_term_accurance iis.terminfos iis.last_doc term pos;
 	dti.doc_info  <- Docinfo.add_term_accurance dti.doc_info term pos 
 
-let end_run iis = InvIndex.flush_memory iis.terminfos
-	(*
-
-	let t = Timem.init () in
-	Timem.start t "iterating";
-	
-	let 	(s, lex, postings, positions) = InvIndex.iterate_over iis.terminfos in
-		Printf.printf "calculated size is %d\n" s;
-			Printf.printf "terms %d postings %d positions %d \n" lex postings positions ;
-	Timem.stop t;
-	
-	Timem.start t "writing inx";
-	let out = open_out_bin "index.inx" in
-	InvIndex.write out iis.terminfos ;
-	close_out out ;
-	Timem.stop t;
-	
-	Timem.start t "reading inx";
-	let inp = open_in_bin "index.inx" in
-	let iix = InvIndex.read inp in
-	Timem.stop t ;
-	let 	(s2, lex2, postings2, positions2) = InvIndex.iterate_over iix in
-		Printf.printf "backed up calculated size is %d\n" s2;
-			Printf.printf "terms %d postings %d positions %d \n" lex2 postings2 positions2 ;
+let end_run iis = 
+	InvIndex.end_collection iis.terminfos;
+	let rec loop stream = match stream with 
+		Merger.Stream(_, term, terminfo) as stream -> 
 			
-	Printf.printf "backed number of tokens:    %d\n" (InvIndex.number_of_tokens iix);
-	Printf.printf "backed number of types:     %d\n" (InvIndex.number_of_types iix)
-	*)
+				Terminfo.pretty_print term terminfo;
+				loop (Merger.fetch_next stream)
+			| _ -> ()
+	in
+		Printf.printf "merged\n"; 
+		loop (Merger.open_terminfo_stream "terminfos.merged") 
+	
 	
 let pretty_print   iis  =
 	Printf.printf "number of documents: %d\n" iis.doc_count;

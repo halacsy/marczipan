@@ -57,7 +57,7 @@ let merge ti1 ti2 =
 					 let pos2 = Varray.get ti2.buffer (ti2.last_doc_id_pos + 2) in
 					 if pos1 < pos2 then (ti1, ti2) else (ti2, ti1)				 
 	in
-	let overlap = (last_doc ti1) = first_doc ti2 in 
+	let overlap = (last_doc ti1) = (first_doc ti2) in 
 
 	let mti = {df = ti1.df + ti2.df - (if overlap then 1 else 0); 
 		       tf = ti1.tf + ti2.tf; 
@@ -78,10 +78,10 @@ let merge ti1 ti2 =
 		*)	
 		(* a  a ket tf-t osszeadjuk *)
 		let tf =  Varray.get ti1.buffer (ti1.last_doc_id_pos + 1) +
-			      Varray.get ti2.buffer (ti2.last_doc_id_pos + 1)
+			      Varray.get ti2.buffer (1)
 		in
 		let tp1 = Varray.get ti1.buffer (ti1.last_doc_id_pos + 2) in
-		let tp2 = Varray.get ti1.buffer 2 in
+		let tp2 = Varray.get ti2.buffer 2 in
 		if tp1 < tp2 then
 		begin
 			(* ez nem a fenti eset, hanem a sime *)
@@ -91,7 +91,6 @@ let merge ti1 ti2 =
 			mti.last_doc_id_pos <- mti.last_doc_id_pos -2
 	end
 		else begin
-			Printf.printf "trukkos tf = %d tp1 = %d tp2 = %d\n" tf tp1 tp2;
 			(* na akkor ez a trukkosebb*)
 			Varray.append_slice mti.buffer ti1.buffer 0 ti1.last_doc_id_pos ;
 			let _ = Varray.add mti.buffer tf in
@@ -105,7 +104,7 @@ let merge ti1 ti2 =
 		end
 	end
 	else
-		
+
 		Varray.append mti.buffer ti1.buffer 0 ;
 		Varray.append mti.buffer ti2.buffer 0;
 	mti	
@@ -151,37 +150,36 @@ let read i =
 	done ;
 	(term, ti)
 
-let pretty_print term ti =	
+let pretty_print term ti =
+
     Printf.printf "%s -> " term;
 	Printf.printf "df = %d tf = %d " ti.df ti.tf;
 	Printf.printf "last_doc_pos = %d " ti.last_doc_id_pos;
 	Printf.printf "last doc id = %d\n" ((Varray.get ti.buffer ti.last_doc_id_pos));
-	let i = ref 0 in
+	let citer = Varray.citer ti.buffer in
 	for d = 1 to ti.df do
-		Printf.printf "%d: " (Varray.get ti.buffer (!i));
-		incr i;
-		let n = ref (Varray.get ti.buffer (!i)) in
-		incr i;	
+		Printf.printf "%d: " (citer ());
+		let n = ref ( (citer ())) in
 		Printf.printf " %d x" !n;
 		while !n > 0 do
-			Printf.printf " %d" (Varray.get ti.buffer (!i));
-			incr i;
+			Printf.printf " %d" (citer());
 			n := !n - 1;
 		done;
 		Printf.printf "\n"
 	done
 	
-
+(*
 let _ =
 	let ti1 = empty () in
 	let ti2 = empty () in
-	occurrence ti1 0 1;
-	occurrence ti1 1 0;
+	occurrence ti1 1 2;
+	occurrence ti1 1 3;
 	
-	occurrence ti2 2 1;
+	occurrence ti2 1 1;
 	occurrence ti2 2 2;
-	occurrence ti2 8 1;
-	occurrence ti2 8 2;
+	occurrence ti2 2 3;
+	
 	pretty_print "a" ti1 ;
 	pretty_print "a" ti2 ;
 	pretty_print "a" (merge ti2 ti1)
+*)

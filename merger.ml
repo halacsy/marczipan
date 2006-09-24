@@ -19,13 +19,16 @@ let fetch_next stream = match stream with
 let merge_streams l = match l with
 	| [] -> raise (Invalid_argument "apply: index out of bounds")
 	| Stream(_,term1,ti)::tail -> let merge ti str = match str with
-		 						Stream(_,term2, ti2) -> 
-										Printf.printf "merging two terminfos\nthe first";
-										Terminfo.pretty_print term1 ti;
-										Printf.printf "the second\n";
-										Terminfo.pretty_print term2 ti2;
-											
-										Terminfo.merge ti ti2
+		 						Stream(_,term2, ti2) ->
+			 						let m = Terminfo.merge ti ti2 in
+									let  _ = if term1 = "a" then
+										Printf.printf "merging two\n";
+										Terminfo.pretty_print "a" ti;
+										Printf.printf "merging second\n";
+										Terminfo.pretty_print "a" ti2;
+										Terminfo.pretty_print "a" m;
+									in m   
+									
 							  | _  -> raise (Invalid_argument "someone want to merge closed stream")
 							in
 							List.fold_left merge  ti tail 
@@ -54,7 +57,6 @@ let merge files =
     let rec loop h =
 		let (term, winners, h) = Heap.consume_tops h in
 		let merged_terminfo = merge_streams winners in
-		let _ = Terminfo.pretty_print term merged_terminfo in
 		let _ = Terminfo.write oc term merged_terminfo in
 		let heap = fetch_streams winners h in
 		loop heap
@@ -63,10 +65,10 @@ let merge files =
 	loop heap;
 	with Heap.Queue_is_empty ->
 	close_out oc
-
+(*
 	
 let _ =
-	let l = "terminfos.temp.0" :: "terminfos.temp.1" :: "terminfos.temp.2" :: "terminfos.temp.3" :: "terminfos.temp.4" :: [] in
+	let l = "terminfos.temp.0" :: "terminfos.temp.1" :: [] in
 	let _ = merge l in
 	let rec loop stream = match stream with 
 		Stream(_, term, terminfo) as stream -> 
@@ -75,6 +77,13 @@ let _ =
 				loop (fetch_next stream)
 			| _ -> ()
 	in
+		Printf.printf "0\n";
+		loop (open_terminfo_stream "terminfos.temp.0");
+	
+		Printf.printf "1\n";
+		loop (open_terminfo_stream "terminfos.temp.1");
+
 		Printf.printf "merged\n";
 		loop (open_terminfo_stream "terminfos.merged")
-		
+
+*)
