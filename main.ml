@@ -39,7 +39,7 @@ let add_term dti term pos =
 	InvIndex.add_term_accurance iis.terminfos iis.last_doc term pos;
 	dti.doc_info  <- Docinfo.add_term_accurance dti.doc_info term pos 
 
-let end_run iis = ()
+let end_run iis = InvIndex.flush_memory iis.terminfos
 	(*
 
 	let t = Timem.init () in
@@ -71,9 +71,8 @@ let end_run iis = ()
 let pretty_print   iis  =
 	Printf.printf "number of documents: %d\n" iis.doc_count;
 	Printf.printf "number of tokens:    %d\n" (InvIndex.number_of_tokens iis.terminfos);
-	Printf.printf "number of types:     %d\n" (InvIndex.number_of_types iis.terminfos);
-	InvIndex.pretty_print iis.terminfos
-
+	Printf.printf "number of types:     %d\n" (InvIndex.number_of_types iis.terminfos)
+	
 
  
 let proc_sentence invi sentence =
@@ -89,5 +88,4 @@ let _ =
 Io.iter_sentence stdin ( proc_sentence invi ) ;
 	Timem.stop t ;
 end_run invi;			
-pretty_print invi
 		

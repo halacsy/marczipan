@@ -50,10 +50,69 @@ let occurrence ti doc_id pos =
 let merge ti1 ti2 =
 	(* mivel a doc_id-k egymas utan jonnek, valamelyik elobbre van. Az lehet, h egy 
 		dok overlap van. *)
-	let last = last_doc_id 
-	let (ti1, ti2, overlap) = if t
-	let mti = 
-let write o ti = 
+	let (ti1, ti2) = if (last_doc ti1) < (last_doc ti2) then (ti1, ti2) else 
+					 if (last_doc ti1) > (last_doc ti2) then (ti2, ti1) else
+					 (* ha egyenlo, akkor a posiziciok szamitanak *)
+					 let pos1 = Varray.get ti1.buffer (ti1.last_doc_id_pos + 2) in
+					 let pos2 = Varray.get ti2.buffer (ti2.last_doc_id_pos + 2) in
+					 if pos1 < pos2 then (ti1, ti2) else (ti2, ti1)				 
+	in
+	let overlap = (last_doc ti1) = first_doc ti2 in 
+
+	let mti = {df = ti1.df + ti2.df - (if overlap then 1 else 0); 
+		       tf = ti1.tf + ti2.tf; 
+		       last_doc_id_pos = (Varray.length ti1.buffer) + ti2.last_doc_id_pos;
+			   buffer = Varray.create  ((Varray.length ti1.buffer) + 
+			        (Varray.length ti2.buffer) - 
+			        (if overlap then 2 else 0) (* folosleges doc_id es freq *)
+			       ) 0;
+			  } in
+			
+	if(overlap) then
+	begin
+		(* overlap eseten bonyolult a helyzet, kepzeld el a kovetkezot
+			d0 1 1 d1 1 3
+			       d1 2 0 1 d2 2 2 4
+			bar utobbi kerul elobbre, de az elso d1-jet kell atmasolni
+		
+		*)	
+		(* a  a ket tf-t osszeadjuk *)
+		let tf =  Varray.get ti1.buffer (ti1.last_doc_id_pos + 1) +
+			      Varray.get ti2.buffer (ti2.last_doc_id_pos + 1)
+		in
+		let tp1 = Varray.get ti1.buffer (ti1.last_doc_id_pos + 2) in
+		let tp2 = Varray.get ti1.buffer 2 in
+		if tp1 < tp2 then
+		begin
+			(* ez nem a fenti eset, hanem a sime *)
+			Varray.append mti.buffer ti1.buffer 0 ;
+			Varray.set mti.buffer tf (ti1.last_doc_id_pos + 1);
+			Varray.append mti.buffer ti2.buffer 2;
+			mti.last_doc_id_pos <- mti.last_doc_id_pos -2
+	end
+		else begin
+			Printf.printf "trukkos tf = %d tp1 = %d tp2 = %d\n" tf tp1 tp2;
+			(* na akkor ez a trukkosebb*)
+			Varray.append_slice mti.buffer ti1.buffer 0 ti1.last_doc_id_pos ;
+			let _ = Varray.add mti.buffer tf in
+			(* most eloszor a ti2 elso dokumentumainak pozicioi jonnek*)
+			Varray.append_slice mti.buffer ti2.buffer (2) ((Varray.get ti2.buffer 1) +1);
+			(* most a ti1 pozicioi *) 
+			Varray.append mti.buffer ti1.buffer (ti1.last_doc_id_pos + 2);
+			(* most a ti2 maradeka *)
+			Varray.append mti.buffer ti2.buffer ((Varray.get ti2.buffer 1) + 2);
+			mti.last_doc_id_pos <- mti.last_doc_id_pos -2;
+		end
+	end
+	else
+		
+		Varray.append mti.buffer ti1.buffer 0 ;
+		Varray.append mti.buffer ti2.buffer 0;
+	mti	
+	
+		
+let write o term ti = 
+    Io.output_string o term;
 	output_binary_int o ti.df;
 	output_binary_int o ti.tf;
 	output_binary_int o (Varray.length ti.buffer);
@@ -67,9 +126,11 @@ let write o ti =
 			n := !n - 1;
 		done
 	done
-
+exception End_of_terminfos
 
 let read i =
+	let term = try Io.input_string i with End_of_file -> raise End_of_terminfos in
+		
 	let df = input_binary_int i in
 	let tf = input_binary_int i in 
 	let l  = input_binary_int i in
@@ -88,22 +149,39 @@ let read i =
 			x := !x - 1;
 		done
 	done ;
-	ti
+	(term, ti)
 
-let pretty_print ti =
-
-	Printf.printf "df = %d tf = %d" ti.df ti.tf;
+let pretty_print term ti =	
+    Printf.printf "%s -> " term;
+	Printf.printf "df = %d tf = %d " ti.df ti.tf;
+	Printf.printf "last_doc_pos = %d " ti.last_doc_id_pos;
 	Printf.printf "last doc id = %d\n" ((Varray.get ti.buffer ti.last_doc_id_pos));
 	let i = ref 0 in
 	for d = 1 to ti.df do
-		Printf.printf " docid = %d\n" (Varray.get ti.buffer (!i));
+		Printf.printf "%d: " (Varray.get ti.buffer (!i));
 		incr i;
 		let n = ref (Varray.get ti.buffer (!i)) in
 		incr i;	
-		Printf.printf " freq = %d\n" !n;
+		Printf.printf " %d x" !n;
 		while !n > 0 do
-			Printf.printf " pos %d\n" (Varray.get ti.buffer (!i));
+			Printf.printf " %d" (Varray.get ti.buffer (!i));
 			incr i;
 			n := !n - 1;
-		done
+		done;
+		Printf.printf "\n"
 	done
+	
+
+let _ =
+	let ti1 = empty () in
+	let ti2 = empty () in
+	occurrence ti1 0 1;
+	occurrence ti1 1 0;
+	
+	occurrence ti2 2 1;
+	occurrence ti2 2 2;
+	occurrence ti2 8 1;
+	occurrence ti2 8 2;
+	pretty_print "a" ti1 ;
+	pretty_print "a" ti2 ;
+	pretty_print "a" (merge ti2 ti1)

@@ -27,6 +27,18 @@ let append va vb from =
 		let _ = add va vb.buffer.(x) in ()
 	done ;
 	()
+
+let append_slice va vb from t =
+	for x = from to t do
+		let _ = add va vb.buffer.(x) in ()
+	done;
+	()
+
+let set va  a pos =
+	if pos > va.last then raise (Invalid_argument "set: index out of bounds")
+	else
+	va.buffer.(pos) <- a
+	
 (** [Varray.apply a f n ] modifies array [a] in place, replacing
  element number [n] with [f a.(n)].
 
