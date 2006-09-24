@@ -20,13 +20,8 @@ let merge_streams l = match l with
 	| [] -> raise (Invalid_argument "apply: index out of bounds")
 	| Stream(_,term1,ti)::tail -> let merge ti str = match str with
 		 						Stream(_,term2, ti2) ->
-			 						let m = Terminfo.merge ti ti2 in
-									let  _ = if term1 = "a" then
-										Printf.printf "merging two\n";
-										Terminfo.pretty_print "a" ti;
-										Printf.printf "merging second\n";
-										Terminfo.pretty_print "a" ti2;
-										Terminfo.pretty_print "a" m;
+			 						let m = Terminfo.merge ti ti2 
+								
 									in m   
 									
 							  | _  -> raise (Invalid_argument "someone want to merge closed stream")
