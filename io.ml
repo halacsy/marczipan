@@ -33,9 +33,13 @@ let read_sentence chan =
 			| "", false -> []                    (* genuine end of non_empty sentence *)
 			| _, _ ->                           (* next real item *)
 				let _, gold =
-					try
+					(*	try
+						*)
+						
 							 next_item line last
+				(*
 					with _ -> Printf.eprintf "invalid line %d %s\n" last line; failwith "invalid line"
+				*)
 				in
 				(word, gold) :: read_sentence false (* már tudjuk, hogy nem üres a mondat *)
 		in
