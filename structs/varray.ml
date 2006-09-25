@@ -1,7 +1,9 @@
 
 type 'a t = {default: 'a ; mutable last : int; mutable buffer : 'a array  }
 
-let create s def ={default = def; last = -1; buffer = Array.create  s def}
+let create s def =
+	if s > Sys.max_array_length then raise (Invalid_argument "create: too large array size");
+	{default = def; last = -1; buffer = Array.create  s def}
 	
 let add va v =
 	va.last <- succ va.last ;
