@@ -11,10 +11,10 @@ type inv_index_state = {
 type doc_term_indexer =   {inv_index : inv_index_state ;
 					       mutable doc_info  : Docinfo.doc_info} 
 
-let start = {
+let start max_tokens = {
 				doc_count  = 0;
 			 	last_doc   = -1;
-				terminfos  = (InvIndex.empty 1000000 );
+				terminfos  = (InvIndex.empty max_tokens );
 				doc_writer = Docinfo.create_writer "index";
 			}
 			
@@ -42,15 +42,8 @@ let add_term dti term pos =
 
 let end_run iis = 
 	InvIndex.end_collection iis.terminfos;
-	let rec loop stream = match stream with 
-		Merger.Stream(_, term, terminfo) as stream -> 
-			
-				Terminfo.pretty_print term terminfo;
-				loop (Merger.fetch_next stream)
-			| _ -> ()
-	in
-		Printf.printf "merged\n"; 
-		loop (Merger.open_terminfo_stream "terminfos.merged") 
+	Printf.printf "merged\n"; 
+	Merger.pretty_print_stream "terminfos.merged" 
 	
 	
 let pretty_print   iis  =
@@ -65,12 +58,17 @@ let proc_sentence invi sentence =
         let n = List.fold_left (fun i (word, gold)  ->  add_term  dti word  i ;  (succ i)) (0) sentence in
 	    end_doc  dti
 
-let invi = start
+
 	
 let _ = 
+	let limit = int_of_string Sys.argv.(1) in
+	let invi = start limit in
+	Printf.eprintf "token limit = %d\n" limit;
 	let t = Timem.init () in
 	Timem.start t "indexing";			
-Io.iter_sentence stdin ( proc_sentence invi ) ;
-	Timem.stop t ;
-end_run invi;			
+	Timem.start t "inverting runs";
+	Io.iter_sentence stdin ( proc_sentence invi ) ;
+	Timem.stop t;
+	end_run invi;
+	Timem.stop t ;			
 		
