@@ -23,6 +23,10 @@ let empty () = {
 	
 let last_doc ti = ti.last_doc;;
 	
+	
+let df ti = ti.df ;;
+let tf ti = ti.tf;;
+	
 let flush_last ti = 
 		if ti.last_doc > -1 then begin
 			BlockList.add ti.buffer ti.last_doc;
