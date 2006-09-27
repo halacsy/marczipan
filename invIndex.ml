@@ -39,11 +39,11 @@ let load_lookup_table index_dir lex =
 	let lic =  open_in_bin (index_dir ^ "/" ^ "lexicon") in
 	let rec loop () = 
 		let term = Io.input_string lic in
-		Printf.printf "adding term %s\n" term;
 		let df   = input_binary_int lic in
 		let tf   = input_binary_int lic in
 		let pos  = input_binary_int lic in
-		Lex.update lex (df, tf, pos) term (fun x -> x)
+		Lex.update lex (df, tf, pos) term (fun x -> x);
+		loop ()
 	in
 	try
 	 loop () 
@@ -60,11 +60,4 @@ let open_reader index_dir =
 	reader
 ;;
 
-let print_stat reader =
-	Printf.printf "unique terms: %d\n" (Lex.size reader.lexicon)
-;;
-	
-let _ =
-	let id = open_reader "vacakk" in
-	print_stat id	
-	
+let types reader = Lex.size reader.lexicon

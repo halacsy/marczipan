@@ -96,10 +96,11 @@ let end_collection ii =
 		let  t= ii.tokens in
 		Timem.finish_speed ii.stopper t "tokens";
 		Timem.start ii.stopper "writing terminfos";	
-		write_current_terminfos ii "terminfos.merged";
+		Lex.sorted_iter (TermIndex.write_term_entry ii.index_writer) ii.lexicon;
 		Timem.finish_speed ii.stopper t "tokens";
 		Timem.finish_speed ii.stopper t "tokens"
 	end;
+	TermIndex.close_writer ii.index_writer;
 	Timem.finish_speed ii.stopper ii.doc_count "documents"
 ;;
 		

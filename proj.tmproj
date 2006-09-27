@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>invIndex.ml</string>
+	<string>docinfo.ml</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -32,7 +32,7 @@
 			<key>filename</key>
 			<string>test.ml</string>
 			<key>lastUsed</key>
-			<date>2006-08-18T18:49:13Z</date>
+			<date>2006-09-08T16:40:04Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -54,33 +54,39 @@
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>testrec.ml</string>
+			<string>test.ml</string>
 			<key>lastUsed</key>
-			<date>2006-09-08T10:15:57Z</date>
+			<date>2006-09-08T16:53:11Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>io.ml</string>
-			<key>selected</key>
-			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>invIndex.ml</string>
 			<key>lastUsed</key>
-			<date>2006-09-08T12:43:16Z</date>
+			<date>2006-09-08T22:40:33Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>docinfo.ml</string>
+			<key>lastUsed</key>
+			<date>2006-09-13T05:49:36Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>indexer.ml</string>
 			<key>lastUsed</key>
-			<date>2006-09-08T12:43:16Z</date>
+			<date>2006-09-08T23:02:24Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>varray.ml</string>
 			<key>lastUsed</key>
-			<date>2006-09-08T12:40:23Z</date>
+			<date>2006-09-08T16:27:47Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -104,7 +110,7 @@
 			<key>filename</key>
 			<string>Makefile</string>
 			<key>lastUsed</key>
-			<date>2006-09-08T11:39:50Z</date>
+			<date>2006-09-08T16:39:50Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -116,9 +122,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>25</integer>
+				<integer>85</integer>
 				<key>line</key>
-				<integer>1</integer>
+				<integer>2</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -197,6 +203,20 @@
 			<key>firstVisibleLine</key>
 			<integer>2</integer>
 		</dict>
+		<key>docinfo.ml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>15</integer>
+				<key>line</key>
+				<integer>15</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>hashlex.ml</key>
 		<dict>
 			<key>caret</key>
@@ -260,28 +280,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>21</integer>
 				<key>line</key>
-				<integer>72</integer>
+				<integer>33</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>52</integer>
+			<integer>10</integer>
 		</dict>
 		<key>invIndex.ml</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>45</integer>
+				<integer>30</integer>
 				<key>line</key>
-				<integer>85</integer>
+				<integer>50</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>75</integer>
+			<integer>7</integer>
 		</dict>
 		<key>lexicon.mli</key>
 		<dict>
@@ -302,44 +322,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>24</integer>
+				<integer>66</integer>
 				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>testrec.ml</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>columnSelection</key>
-			<false/>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
 				<integer>6</integer>
-				<key>line</key>
-				<integer>10</integer>
 			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
 		</dict>
 		<key>timem.ml</key>
 		<dict>
@@ -360,14 +350,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>14</integer>
+				<integer>27</integer>
 				<key>line</key>
-				<integer>20</integer>
+				<integer>25</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>51</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
@@ -376,9 +366,10 @@
 		<string>hashlexhas.ml</string>
 		<string>varray.ml</string>
 		<string>indexer.ml</string>
+		<string>docinfo.ml</string>
 		<string>timem.ml</string>
 		<string>invIndex.ml</string>
-		<string>testrec.ml</string>
+		<string>test.ml</string>
 		<string>lexicon.mli</string>
 		<string>bst.ml</string>
 		<string>test.ml</string>
