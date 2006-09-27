@@ -7,11 +7,13 @@ type t = {mutable tokens 		: int;
 		
 		  mutable temp_files : string  list; 
 		  max_tokens_in_memory : int;
-		  stopper        : Timem.t
+		  stopper        : Timem.t;
+		  index_writer   : TermIndex.writer;
+		  dir            : string
 		}
 		
 	
-let start_collection max_tokens = 
+let start_collection dir max_tokens = 
 	let stopper = Timem.init () in
 	Timem.start stopper "collection";
 	Timem.start stopper "run";
@@ -23,7 +25,9 @@ let start_collection max_tokens =
 	 cur_doc = -1; 
 	 temp_files = [];  
 	 max_tokens_in_memory = max_tokens; 
-	 stopper = stopper }
+	 stopper = stopper;
+	index_writer = TermIndex.open_writer dir;
+	dir = dir }
 
 (* call this before adding posting info
 nincs ellenorizve, hogy novekvo-e a doc_id *)
@@ -52,7 +56,7 @@ let flush_memory ii =
 	if ii.tokens > 0 then
 	begin
 	Timem.start ii.stopper "flushing";
-		let temp_file = "terminfos.temp." ^ (string_of_int (List.length ii.temp_files)) in
+		let temp_file = "/terminfos.temp." ^ (string_of_int (List.length ii.temp_files)) in
 		ii.temp_files <- temp_file :: ii.temp_files ;
 		write_current_terminfos ii temp_file;
 		let t = ii.tokens in
@@ -85,7 +89,7 @@ let end_collection ii =
 		flush_memory ii;
 		Timem.finish_speed ii.stopper t "tokens";
 		Timem.start ii.stopper "merging";
-		Merger.merge ii.temp_files;
+		Merger.merge ii.index_writer ii.temp_files;
 		Timem.finish ii.stopper
 	end
 	else begin

@@ -7,11 +7,13 @@ let proc_sentence ii sentence =
 
 	
 let _ = 
-	let limit = int_of_string Sys.argv.(1) in
+	let indexdir = Sys.argv.(1) in
+	let limit = int_of_string Sys.argv.(2) in
 	Printf.eprintf "token limit = %d\n" limit;
-	let ii = InvIndex.start_collection limit in
+	let ii = InvIndex.start_collection indexdir limit in
 	Io.iter_sentence stdin ( proc_sentence ii ) ;
 	InvIndex.end_collection ii
 	;
-	Merger.pretty_print_stream "terminfos.merged" 
- 
+(*	Merger.pretty_print_stream "terminfos.merged" 
+ *)
+()

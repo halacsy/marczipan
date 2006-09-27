@@ -60,17 +60,9 @@ let merge_tops heap  =
 
 	
 
-(* ez nem csak hogy kiirja a terminfo-t, de az index fajlt is ira kozben *)
-let final_terminfo_writer ixoc tioc term terminfo =
-	flush tioc;
-	let pos = pos_out tioc in
-	let df = Terminfo.df terminfo in
-	let tf = Terminfo.tf terminfo in
-	Printf.fprintf ixoc  "%s %d %d %d\n" term df tf pos	;
-	Terminfo.write tioc term terminfo 
-;;	
 
-
+(** majd a hierarchikus merge-nel a kozbenso lepeseknel nem kell teljes indexet 
+	irnunk. Ezert van ez itt kulon veve.*)
 let imerge writer files =
 	(* megnyitjuk az osszes fajlt es beolvassuk az elso terminfoit, es heapbe rakjul *)
 	let aux heap file =
@@ -90,15 +82,12 @@ let imerge writer files =
 	with Heap.Queue_is_empty -> ()
 ;;
 
-let final_merge files =
-	let tioc = open_out_bin "terminfos.merged" in
-	let ixoc = open_out_bin "index.lex" in
-	imerge (final_terminfo_writer ixoc tioc) files;
-	close_out tioc;
-	close_out ixoc
+let final_merge writer files =
+	imerge (TermIndex.write_term_entry writer) files;
 ;;		
-let merge files =
-	final_merge files 
+
+let merge writer files =
+	final_merge writer files 
 ;;
 
 (*
