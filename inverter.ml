@@ -56,7 +56,7 @@ let flush_memory ii =
 	if ii.tokens > 0 then
 	begin
 	Timem.start ii.stopper "flushing";
-		let temp_file = "/terminfos.temp." ^ (string_of_int (List.length ii.temp_files)) in
+		let temp_file = ii.dir ^ "/terminfos.temp." ^ (string_of_int (List.length ii.temp_files)) in
 		ii.temp_files <- temp_file :: ii.temp_files ;
 		write_current_terminfos ii temp_file;
 		let t = ii.tokens in
