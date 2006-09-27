@@ -57,8 +57,21 @@ let merge_tops heap  =
 	in
 	
 	(term, merged_ti, aux heap);;
+
 	
-let merge files =
+
+(* ez nem csak hogy kiirja a terminfo-t, de az index fajlt is ira kozben *)
+let final_terminfo_writer ixoc tioc term terminfo =
+	flush tioc;
+	let pos = pos_out tioc in
+	let df = Terminfo.df terminfo in
+	let tf = Terminfo.tf terminfo in
+	Printf.fprintf ixoc  "%s %d %d %d\n" term df tf pos	;
+	Terminfo.write tioc term terminfo 
+;;	
+
+
+let imerge writer files =
 	(* megnyitjuk az osszes fajlt es beolvassuk az elso terminfoit, es heapbe rakjul *)
 	let aux heap file =
 		let stream = open_terminfo_stream file in
@@ -66,17 +79,28 @@ let merge files =
 	in
 	let heap = List.fold_left aux (Heap.empty) files in
 
-	let oc = open_out_bin "terminfos.merged" in
 	(* amit elfogyasztunk *)
     let rec loop heap =
 		let (term, merged_terminfo, heap) = merge_tops heap in
-		let _ = Terminfo.write oc term merged_terminfo in
+		let _ = writer term merged_terminfo in
 		loop heap
 	in
 	try
 	loop heap;
-	with Heap.Queue_is_empty ->
-	close_out oc
+	with Heap.Queue_is_empty -> ()
+;;
+
+let final_merge files =
+	let tioc = open_out_bin "terminfos.merged" in
+	let ixoc = open_out_bin "index.lex" in
+	imerge (final_terminfo_writer ixoc tioc) files;
+	close_out tioc;
+	close_out ixoc
+;;		
+let merge files =
+	final_merge files 
+;;
+
 (*
 	
 let _ =
