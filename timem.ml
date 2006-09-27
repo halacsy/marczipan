@@ -3,9 +3,16 @@ type t = {mutable last_id : int ; mutable events : a list}
 
 
 let init () = {last_id = 1; events = []}
-	
+
+let indent s =
+	let m = String.make (List.length s.events) ' ' in
+	Printf.eprintf "%s" m
+;;
+		
 let start s msg =
+	indent s;
 	Printf.eprintf "%d. %s started\n" s.last_id msg;
+	flush stderr;
 	s.events <- {id = s.last_id; t = Sys.time (); msg = msg} :: s.events;
 	s.last_id <- s.last_id + 1;;
 
@@ -21,11 +28,15 @@ let istop t = match t.events with
 
 let finish t =
 	let (time, s, id) = istop t in
-	Printf.eprintf "%d. %s finished: %f\n" id s time
+	indent t;
+	Printf.eprintf "%d. %s finished: %f\n" id s time;
+	flush stderr;;
 	
 let finish_speed t n unit =
 	let (time, s, id) = istop t in
 	let speed =	(float_of_int n) /. time   in
-	Printf.eprintf "%d. %s finished: %f doing %d %s; speed = %f %s/sec\n" id s time n unit speed unit
+	indent t;
+	Printf.eprintf "%d. %s finished: %f doing %d %s; speed = %f %s/sec\n" id s time n unit speed unit;
+	flush stderr;;
 		
 	

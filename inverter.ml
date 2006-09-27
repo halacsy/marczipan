@@ -15,6 +15,8 @@ let start_collection max_tokens =
 	let stopper = Timem.init () in
 	Timem.start stopper "collection";
 	Timem.start stopper "run";
+	Timem.start stopper "collecting terminfos";
+	
 	{tokens = 0; 
 	 lexicon = Lex.create 10000; 
 	 doc_count = 0;
@@ -57,8 +59,6 @@ let flush_memory ii =
 		ii.tokens <- 0;
 		Lex.clear ii.lexicon;
 	Timem.finish_speed ii.stopper t "tokens";
-	Timem.finish_speed ii.stopper t "tokens";
-		Timem.start ii.stopper "run";
 	end
 
 let end_doc ii =
@@ -66,20 +66,36 @@ let end_doc ii =
 			belul lenne flush, akkor terminfo listak atlapolodhatnanak, ami bonyolitja
 			az osszefuzest.*)
 		if ii.tokens > ii.max_tokens_in_memory then
-			flush_memory ii
+		begin
+			let t = ii.tokens in
+			Timem.finish_speed ii.stopper t "tokens";
+			flush_memory ii;
+			Timem.finish_speed ii.stopper t "tokens";			
+			Timem.start ii.stopper "run";
+			Timem.start ii.stopper "collecting terminfos";
 
-
+		end
 
 			
 let end_collection ii = 
 	(* kell-e merge *)
 	if (List.length ii.temp_files) > 0 then begin
+		let t = ii.tokens in
+		Timem.finish_speed ii.stopper t "tokens";
 		flush_memory ii;
+		Timem.finish_speed ii.stopper t "tokens";
 		Timem.start ii.stopper "merging";
 		Merger.merge ii.temp_files;
 		Timem.finish ii.stopper
 	end
-	else
+	else begin
 		let  t= ii.tokens in
+		Timem.finish_speed ii.stopper t "tokens";
+		Timem.start ii.stopper "writing terminfos";	
 		write_current_terminfos ii "terminfos.merged";
+		Timem.finish_speed ii.stopper t "tokens";
 		Timem.finish_speed ii.stopper t "tokens"
+	end;
+	Timem.finish_speed ii.stopper ii.doc_count "documents"
+;;
+		
