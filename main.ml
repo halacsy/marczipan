@@ -1,4 +1,9 @@
- 
+let set_gc () =
+ Gc.set { (Gc.get()) with Gc.major_heap_increment = (640000) };
+ Gc.set { (Gc.get()) with Gc.minor_heap_size = (640000) }
+;;
+
+
 let proc_sentence ii sentence =
 		let _ = InvIndex.start_doc ii in
         let n = List.fold_left (fun i (word, gold)  ->  InvIndex.add_term ii word  i ;  (succ i)) (0) sentence in
@@ -32,6 +37,7 @@ let _ =
 if (Array.length Sys.argv) < 2 then 
 	let _ = usage () in	exit 1
 else
+	set_gc () ;
 	let indexdir = Sys.argv.(1) in
 	match Sys.argv.(2) with
 		"build" -> index indexdir  (int_of_string Sys.argv.(3))

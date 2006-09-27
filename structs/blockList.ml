@@ -10,7 +10,7 @@ type 'a t = {first   : 'a block;
 			 mutable ix      : int ;
 			 default : 'a}
 
-let next_size prev = 2
+let next_size prev =  16
 	
 let create default =
 	let first = {  content = Array.create (next_size 0) default; next = None} in
