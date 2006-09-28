@@ -51,7 +51,7 @@ let load_lookup_table index_dir lex =
 
 let open_reader index_dir = 
 	let reader = {doclist_ic = open_in_bin (index_dir ^ "/" ^ "doclists");
-				  lexicon = Lex.create 100000 ;
+				  lexicon = Lex.create 4000000 ;
 				  stopper = Timem.init ();
 	} in
 	Timem.start reader.stopper "loading lexicon";

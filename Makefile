@@ -6,8 +6,8 @@ RESULT = test
 
 #LIBDIRS=/usr/local/lib/ocamorph 
 #INCDIRS=/usr/local/lib/ocamorph
-#export OCAMLNCFLAGS := -unsafe -inline 100 
-#all:debug-code
+export OCAMLNCFLAGS := -unsafe -inline 100 
+#all:profiling-native-code
 all: nc
 #all: profiling-byte-code
 
