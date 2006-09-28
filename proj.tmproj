@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>docinfo.ml</string>
+	<string>termIndex.ml</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -66,21 +66,19 @@
 			<key>filename</key>
 			<string>invIndex.ml</string>
 			<key>lastUsed</key>
-			<date>2006-09-08T22:40:33Z</date>
+			<date>2006-09-27T20:04:50Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>docinfo.ml</string>
 			<key>lastUsed</key>
-			<date>2006-09-13T05:49:36Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2006-09-27T19:21:54Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>indexer.ml</string>
 			<key>lastUsed</key>
-			<date>2006-09-08T23:02:24Z</date>
+			<date>2006-09-27T19:59:56Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -108,9 +106,17 @@
 		</dict>
 		<dict>
 			<key>filename</key>
+			<string>termIndex.ml</string>
+			<key>lastUsed</key>
+			<date>2006-09-27T20:04:50Z</date>
+			<key>selected</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>filename</key>
 			<string>Makefile</string>
 			<key>lastUsed</key>
-			<date>2006-09-08T16:39:50Z</date>
+			<date>2006-09-27T19:24:11Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -122,9 +128,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>85</integer>
+				<integer>127</integer>
 				<key>line</key>
-				<integer>2</integer>
+				<integer>1</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -280,28 +286,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>21</integer>
+				<integer>15</integer>
 				<key>line</key>
-				<integer>33</integer>
+				<integer>16</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>10</integer>
+			<integer>12</integer>
 		</dict>
 		<key>invIndex.ml</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>30</integer>
+				<integer>61</integer>
 				<key>line</key>
-				<integer>50</integer>
+				<integer>98</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>7</integer>
+			<integer>81</integer>
 		</dict>
 		<key>lexicon.mli</key>
 		<dict>
@@ -316,6 +322,20 @@
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
+		</dict>
+		<key>termIndex.ml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>1</integer>
+				<key>line</key>
+				<integer>41</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>31</integer>
 		</dict>
 		<key>test.ml</key>
 		<dict>
@@ -377,10 +397,11 @@
 		<string>btree.ml</string>
 		<string>bursttrie.ml</string>
 		<string>Makefile</string>
+		<string>termIndex.ml</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{307, 301}, {931, 529}}</string>
+	<string>{{442, 317}, {931, 529}}</string>
 </dict>
 </plist>

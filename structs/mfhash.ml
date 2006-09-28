@@ -3,7 +3,7 @@ module type HashedType =
   sig
     type t
     val equal: t -> t -> bool
-    val hash: t -> int
+    val hash: t -> int -> int
 	val compare: t -> t -> int
   end
 
@@ -45,7 +45,7 @@ type ( 'b) t =
   { mutable size: int;                        (* number of elements *)
     mutable data: ( 'b) bucketlist array } (* the buckets *)
 
-let hash = H.hash 
+
 	
 let create initial_size =
   let s = min (max 1 initial_size) Sys.max_array_length in
@@ -70,7 +70,7 @@ let copy h =
 
 let length h = h.size
 
-let resize hashfun tbl =
+let resize tbl =
 
 	begin
   let odata = tbl.data in
@@ -83,7 +83,7 @@ let resize hashfun tbl =
       | Cons(onode) ->
          (* preserve ordering, insert first the first *)
 		 begin
-          let nidx = (hashfun onode.key) mod nsize in
+          let nidx = (H.hash onode.key nsize) in
           match ndata.(nidx) with
 			(* this is empty bucket *)
 	 		Empty -> ndata.(nidx) <- 	Cons( {next = Empty; 
@@ -150,7 +150,7 @@ let print_bucket_stat h =
 	end
 *)
 let find h k   =
-	  let i = (hash k) mod (Array.length h.data) in
+	  let i = H.hash k (Array.length h.data) in
 	  let l = h.data.(i) in
 	  match l with
 		| Empty ->  raise Not_found 
@@ -178,18 +178,18 @@ let find h k   =
 
 	
 let update h  default_info k  update_fun  =
-	 let i = (hash k) mod (Array.length h.data) in
+	 let i = H.hash k (Array.length h.data)  in
 	 let l = h.data.(i) in
 	 match l with
 	| Empty ->  h.data.(i) <- Cons( {next = Empty;  key = k; value = update_fun default_info} ) ;
 								    h.size <- succ h.size;
-								    if h.size > Array.length h.data lsl 1 then resize hash h ;
+								    if h.size > Array.length h.data lsl 1 then resize  h ;
 	
 	| Cons(node1) -> 
 		let rec update_rec nodex = match nodex.next with
                      | Empty -> nodex.next <- Cons( {next = Empty;  key = k; value = update_fun default_info} ) ;
 					   h.size <- succ h.size;
-					if h.size > Array.length h.data lsl 1 then resize hash h			
+					if h.size > Array.length h.data lsl 1 then resize h			
 			| Cons(nodexx) ->
 				if str_eq k nodexx.key  then
 					begin
