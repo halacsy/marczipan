@@ -10,6 +10,7 @@ type t = {mutable tokens 		: int;
 		  stopper        : Timem.t;
 		  index_writer   : TermIndex.writer;
 		  dir            : string
+		
 		}
 		
 	
@@ -31,7 +32,7 @@ let start_collection dir max_tokens =
 
 (* call this before adding posting info
 nincs ellenorizve, hogy novekvo-e a doc_id *)
-let start_doc ii  = 
+let start_doc ii meta  = 
 		let doc_id = succ ii.cur_doc in
 		ii.doc_count <- succ ii.doc_count;
 		ii.cur_doc  <- doc_id;
@@ -56,7 +57,7 @@ let flush_memory ii =
 	if ii.tokens > 0 then
 	begin
 	Timem.start ii.stopper "flushing";
-		let temp_file = ii.dir ^ "/terminfos.temp." ^ (string_of_int (List.length ii.temp_files)) in
+		let temp_file = "/terminfos.temp." ^ (string_of_int (List.length ii.temp_files)) in
 		ii.temp_files <- temp_file :: ii.temp_files ;
 		write_current_terminfos ii temp_file;
 		let t = ii.tokens in
