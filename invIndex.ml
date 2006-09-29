@@ -27,7 +27,6 @@ let write_term_entry w term terminfo =
 	output_binary_int w.lexicon_oc df;
 	output_binary_int w.lexicon_oc tf;
 	output_binary_int w.lexicon_oc pos	;
-	DocList.pretty_print (DocList.Collector.doclist terminfo);
 	DocList.write w.doclist_oc (DocList.Collector.doclist terminfo)
 ;;
 
