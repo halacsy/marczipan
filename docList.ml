@@ -34,7 +34,6 @@ let last_doc ti = ti.last_doc;;
 	
 let df ti = ti.df ;;
 let tf ti = ti.tf;;
-let doclist ti = ti.buffer;;
 	
 let flush_last ti = 
 		if ti.last_doc > -1 then begin
@@ -42,6 +41,10 @@ let flush_last ti =
 			BlockList.Int.add ti.buffer (List.length ti.last_positions);
 			List.iter (BlockList.Int.add ti.buffer) (List.rev ti.last_positions)
 		end
+
+let doclist ti = 
+	flush_last ti;
+	ti.buffer;;
 		
 let occurrence ti doc pos =
 	ti.tf <- succ ti.tf ; 
@@ -70,19 +73,12 @@ let pretty_print term ti =
     Printf.printf "%s -> " term;
     Printf.printf "df = %d tf = %d " ti.df ti.tf;
     Printf.printf "last doc id = %d\n" ti.last_doc;
-	let state = ref 0 in
+	let state = ref 1 in
 	let aux i =
-		if !state = 0 then begin	
-        	Printf.printf "\n%d: " i;
-            state := 1;
-		end else
-		if !state = 1 then begin
-			Printf.printf " %d x" i;	
-			state := i + 2 
-		end else begin
-			Printf.printf " %d" i;
-            state := !state - 1;
-		end
+		match !state with
+		| 1 -> state := 0;  Printf.printf  "\n%d: " i
+		| 0 -> state := i + 1; Printf.printf  " %d x" i 
+		| _ -> state := !state - 1; Printf.printf 	" %d" i 
 	in
 	BlockList.Int.iter aux ti.buffer;
 	Printf.printf "\n%d: " ti.last_doc;
@@ -147,7 +143,32 @@ let read ic df =
 		done;
 	done;
 	buffer
+
+type stream = {block_stream : BlockList.Int.stream};;
+
+let open_stream t =
+	{block_stream = BlockList.Int.open_stream t}
+;;
+
+exception End_of_stream;;
+let next_doc s =
+	(* doc_id, freq, pos1, pos2, pos3 *)
+	let doc_id = try BlockList.Int.next s.block_stream with BlockList.Int.End_of_stream -> raise End_of_stream in
+	let freq   = BlockList.Int.next s.block_stream in
+	BlockList.Int.skip s.block_stream (freq ) ;
+	(doc_id, freq)
 	
+let pretty_print t =
+	let state = ref 1 in
+	let aux i =
+		match !state with
+		| 1 -> state := 0;  Printf.printf  "\n%d: " i
+		| 0 -> state := i + 1; Printf.printf  " %d x" i 
+		| _ -> state := !state - 1; Printf.printf 	" %d" i 
+	in
+	BlockList.Int.iter aux t;
+	Printf.printf "\n"
+;;
 (*	
 let _ =
       let ti1 = empty () in

@@ -17,7 +17,7 @@ module type S =
 	type stream 	
 	val open_stream :  t -> stream
 	val next   :  stream -> elt
-	
+	val skip   :  stream -> int -> unit
 	exception End_of_stream;;
 	  
  end

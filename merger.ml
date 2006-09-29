@@ -3,14 +3,14 @@ type t = {work_dir   : string;
 
 let init work_dir = {work_dir = work_dir; temp_files = [] }
 	
-type stream = {ic: in_channel; mutable term : string ; mutable terminfo :  Terminfo.Collector.t} 
+type stream = {ic: in_channel; mutable term : string ; mutable terminfo :  DocList.Collector.t} 
 			
 (* ide kerul a tempfile iras az inverterbol, hogy egy helyen legyen *)
 
 
 let write_to_temp oc term collected =
 	Io.output_string oc term;
-	Terminfo.Collector.write oc collected
+	DocList.Collector.write oc collected
 ;;
 
 let need_merge m = (List.length m.temp_files) > 0
@@ -25,7 +25,7 @@ let flush m iter =
 
 let read_next_from_temp ic =
 	let term = Io.input_string ic in
-	let collected = Terminfo.Collector.read ic in
+	let collected = DocList.Collector.read ic in
 	(term, collected)
 ;;
 		
@@ -47,7 +47,7 @@ let fetch_next stream =
 let pretty_print_stream file =
 	let stream = open_terminfo_stream file in
 	let rec loop () = 
-			Terminfo.Collector.pretty_print stream.term stream.terminfo;
+			DocList.Collector.pretty_print stream.term stream.terminfo;
 			fetch_next stream;
 			loop ()
 	in
@@ -62,7 +62,7 @@ let get_top heap =
 	let ti = stream.terminfo in
 	let heap= try 
 				fetch_next stream;
-				Heap.insert heap  (stream.term, Terminfo.Collector.last_doc stream.terminfo) stream
+				Heap.insert heap  (stream.term, DocList.Collector.last_doc stream.terminfo) stream
 			  with End_of_file -> heap
 	in
 	(term, ti, heap);;
@@ -76,7 +76,7 @@ let merge_tops heap  =
 			flush_all ();
 			if term = nterm then
 				let (_, ti, heap) = get_top heap in
-				Terminfo.Collector.append merged_ti ti;
+				DocList.Collector.append merged_ti ti;
 				aux heap 
 			else
 	 			(heap)
@@ -95,7 +95,7 @@ let imerge writer files =
 	(* megnyitjuk az osszes fajlt es beolvassuk az elso terminfoit, es heapbe rakjul *)
 	let aux heap file =
 		let stream = open_terminfo_stream file in
-		Heap.insert heap  (stream.term, Terminfo.Collector.last_doc stream.terminfo) stream
+		Heap.insert heap  (stream.term, DocList.Collector.last_doc stream.terminfo) stream
 	in
 	let heap = List.fold_left aux (Heap.empty) files in
 
@@ -126,7 +126,7 @@ let _ =
 	let rec loop stream = match stream with 
 		Stream(_, term, terminfo) as stream -> 
 			
-				Terminfo.pretty_print term terminfo;
+				DocList.pretty_print term terminfo;
 				loop (fetch_next stream)
 			| _ -> ()
 	in

@@ -19,6 +19,7 @@ module type S =
 	type stream 	
 	val open_stream :  t -> stream
 	val next   :  stream -> elt
+	val skip   :  stream -> int -> unit
  	exception End_of_stream;;
 
  end
@@ -51,6 +52,7 @@ let create () =
 	{first = first ; last = first; ix = 0; len = 0; }
 	
 let add bl elt =
+	bl.len <- bl.len + 1;
 	let cur_size = Array.length bl.last.content in
 	if cur_size > bl.ix then
 		(* have enough space in this block *)
@@ -103,6 +105,22 @@ let rec next s =
 				| Some(next_block) -> s.cur_block <- next_block; s.inner_block_ix <- 0; next s	
 ;;
 
+let rec skip s n =
+	if n = 0 then ();
+	if  s.remain = 0 then raise End_of_stream;
+	let remain_in_block = (Array.length s.cur_block.content) -  s.inner_block_ix in
+	if n >= remain_in_block then 
+		match s.cur_block.next with
+  			None ->  raise End_of_stream; 
+			| Some(next_block) -> 
+				s.cur_block <- next_block; 
+				s.inner_block_ix <- 0; 
+				s.remain <- s.remain - remain_in_block;
+				skip s (n - remain_in_block)
+	else
+		s.remain <- s.remain - n;
+		s.inner_block_ix <- s.inner_block_ix + n
+	 
 let open_stream bl = {cur_block = bl.first; inner_block_ix = 0; remain = bl.len} ;;
 end;;
 

@@ -1,7 +1,7 @@
 module Lex = Mfhash.Make (Hashlex.HashedString)
 
 type inverter = {mutable tokens 		: int;
-		  lexicon        		: (Terminfo.Collector.t) Lex.t;
+		  lexicon        		: (DocList.Collector.t) Lex.t;
 		  mutable	doc_count 	: int ;				(* number of documents *)
 		
 		  merger                : Merger.t; 
@@ -44,7 +44,7 @@ let start_doc ii meta  =
 ;;
 
 let add_term inverter doc_handler term pos =		
-		Lex.update inverter.lexicon (Terminfo.Collector.empty ()) term (fun ti -> Terminfo.Collector.occurrence ti doc_handler.cur_doc pos; ti) ;
+		Lex.update inverter.lexicon (DocList.Collector.empty ()) term (fun ti -> DocList.Collector.occurrence ti doc_handler.cur_doc pos; ti) ;
 	    inverter.tokens <- succ inverter.tokens;
 	 	ForIndex.add_term inverter.for_index doc_handler.for_index_doc_handler term pos
 ;;

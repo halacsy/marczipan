@@ -71,6 +71,12 @@ type doc_info = {types : int;
 				 ptr_meta  : ptr_meta_t }
 				
 
+
+
+type reader = {docmap  : (doc_info) IntHashTable.t;
+			   meta_ic : in_channel; 
+			   stopper : Timem.t}
+
 let read_docstats index_dir lex = 			
 	let ic =  open_in_bin (index_dir ^ "/" ^ "docindex") in
 	let rec loop () = 
@@ -86,10 +92,6 @@ let read_docstats index_dir lex =
 	 loop () 
  	with End_of_file -> ()
 
-type reader = {docmap  : (doc_info) IntHashTable.t;
-			   meta_ic : in_channel; 
-			   stopper : Timem.t}
-
 let open_reader index_dir = 
 	let reader = {docmap  = IntHashTable.create 5000 ;
 				  meta_ic = open_in_bin (index_dir ^ "/docmeta" );
@@ -101,6 +103,15 @@ let open_reader index_dir =
 	reader
 	;;
 	
-let fetch_doc_info reader docid =
-	IntHashTable.find reader.docmap docid
+
+let doc_meta r di =
+	seek_in r.meta_ic di.ptr_meta; 
+	DocMeta.read r.meta_ic
+;;
+
+let doc_info reader docid =
+	(IntHashTable.find reader.docmap docid)
+;;	
+
+let doc_len di = di.len	
 	

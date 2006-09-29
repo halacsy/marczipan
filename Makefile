@@ -1,6 +1,6 @@
 STRUCTS = structs/mfhash.ml structs/hashlex.ml structs/blockList.mli structs/blockList.ml structs/heap.ml
 UTIL = io.ml timem.ml
-INDEX = terminfo.ml docMeta.ml invIndex.ml merger.ml  forIndex.ml inverter.ml 
+INDEX = docList.ml docMeta.ml invIndex.ml merger.ml  forIndex.ml inverter.ml 
 SOURCES = ${UTIL}  ${STRUCTS}  ${INDEX} main.ml
 
 RESULT = test

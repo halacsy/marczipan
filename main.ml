@@ -21,9 +21,23 @@ let print_stat reader =
 let search index_dir =
 	let ii = InvIndex.open_reader index_dir in
 	let fi = ForIndex.open_reader index_dir in
-	let ti = InvIndex.fetch_posting ii "a" in
+	let term = "a" in
+	let (df, tf, open_stream) = InvIndex.term_info ii term in
+	Printf.printf "term %s df tf %d %d\n" term df tf ;
+	let doc_stream = open_stream () in
+	let rec loop () =
+		let (docid, freq) = DocList.next_doc doc_stream in
+		let di = ForIndex.doc_info fi docid in
+		
+		Printf.printf "doc: %d freq: %d doclen: %d \n" docid freq (ForIndex.doc_len di);
+		let meta = ForIndex.doc_meta fi di in
+		Printf.printf "%s\n" (DocMeta.get_string meta 0); 	
+		loop ()
+	in
+	try
+	loop ()
+	with DocList.End_of_stream -> ()
 
-	print_stat ii
 ;;
 
 let index indexdir limit =

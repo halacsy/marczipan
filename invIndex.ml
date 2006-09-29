@@ -21,13 +21,14 @@ let open_writer index_dir =
 let write_term_entry w term terminfo =
 	flush w.doclist_oc;
 	let pos = pos_out w.doclist_oc in
-	let df = Terminfo.Collector.df terminfo in
-	let tf = Terminfo.Collector.tf terminfo in
+	let df = DocList.Collector.df terminfo in
+	let tf = DocList.Collector.tf terminfo in
 	Io.output_string w.lexicon_oc term;
 	output_binary_int w.lexicon_oc df;
 	output_binary_int w.lexicon_oc tf;
 	output_binary_int w.lexicon_oc pos	;
-	Terminfo.write w.doclist_oc (Terminfo.Collector.doclist terminfo)
+	DocList.pretty_print (DocList.Collector.doclist terminfo);
+	DocList.write w.doclist_oc (DocList.Collector.doclist terminfo)
 ;;
 
 let close_writer w =
@@ -51,7 +52,7 @@ let load_lookup_table index_dir lex =
 
 let open_reader index_dir = 
 	let reader = {doclist_ic = open_in_bin (index_dir ^ "/" ^ "postings");
-				  lexicon = Lex.create 4000000 ;
+				  lexicon = Lex.create 10 ;
 				  stopper = Timem.init ();
 	} in
 	Timem.start reader.stopper "loading lexicon";
@@ -62,8 +63,22 @@ let open_reader index_dir =
 
 let types reader = Lex.size reader.lexicon
 	
-let fetch_posting reader term =
-	let (_, _, pos) = Lex.find reader.lexicon term in
-	seek_in reader.doclist_ic pos;
-	let doclist = Terminfo.read reader.doclist_ic in
-	doclist
+let term_info reader term =
+	
+	let (df, tf, pos) = Lex.find reader.lexicon term in
+	let open_stream () =
+		seek_in reader.doclist_ic  pos;
+		let doclist = DocList.read reader.doclist_ic  df in
+    	DocList.open_stream doclist
+	in
+	(df, tf, open_stream)
+	
+let pretty_print reader =
+	let aux term (df, tf, pos) =
+		Printf.printf "%s -> " term;
+	    Printf.printf "df = %d tf = %d\n " df tf;
+		seek_in reader.doclist_ic  pos;
+		let doclist = DocList.read reader.doclist_ic  df in
+		DocList.pretty_print doclist ; 
+	in
+	Lex.iter  aux reader.lexicon
