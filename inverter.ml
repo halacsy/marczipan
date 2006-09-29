@@ -1,18 +1,20 @@
 module Lex = Mfhash.Make (Hashlex.HashedString)
 
-type t = {mutable tokens 		: int;
-		  lexicon        		: (Terminfo.t) Lex.t;
+type inverter = {mutable tokens 		: int;
+		  lexicon        		: (Terminfo.Collector.t) Lex.t;
 		  mutable	doc_count 	: int ;				(* number of documents *)
-		  mutable	cur_doc  	: int ;               (* the document we are currently processing *)
 		
-		  mutable temp_files : string  list; 
+		  merger                : Merger.t; 
 		  max_tokens_in_memory : int;
 		  stopper        : Timem.t;
-		  index_writer   : TermIndex.writer;
-		  dir            : string
-		
+		  index_writer   : InvIndex.writer;
+		  dir            : string;
+		  for_index		 : ForIndex.forIndex_writer
 		}
-		
+
+type doc_handler = {cur_doc               : int;
+				    for_index_doc_handler : ForIndex.doc_handler
+ }
 	
 let start_collection dir max_tokens = 
 	let stopper = Timem.init () in
@@ -20,53 +22,52 @@ let start_collection dir max_tokens =
 	Timem.start stopper "run";
 	Timem.start stopper "collecting terminfos";
 	
-	{tokens = 0; 
-	 lexicon = Lex.create 10000; 
-	 doc_count = 0;
-	 cur_doc = -1; 
-	 temp_files = [];  
+	{tokens               = 0; 
+	 lexicon              = Lex.create 10000; 
+	 doc_count            = 0;
+	 merger               = Merger.init dir;
 	 max_tokens_in_memory = max_tokens; 
-	 stopper = stopper;
-	index_writer = TermIndex.open_writer dir;
-	dir = dir }
+	 stopper              = stopper;
+	 dir                  = dir ;
+	 index_writer         = InvIndex.open_writer dir;
+     for_index            = ForIndex.start_collection dir
+    }
 
 (* call this before adding posting info
 nincs ellenorizve, hogy novekvo-e a doc_id *)
 let start_doc ii meta  = 
-		let doc_id = succ ii.cur_doc in
+		let docid = ii.doc_count in
 		ii.doc_count <- succ ii.doc_count;
-		ii.cur_doc  <- doc_id;
-		doc_id
+		{ cur_doc  = docid;
+		  for_index_doc_handler = (ForIndex.start_doc ii.for_index docid meta)}
 		
 ;;
 
-let add_term ii term pos =		
-		Lex.update ii.lexicon (Terminfo.empty ()) term (fun ti -> Terminfo.occurrence ti ii.cur_doc pos; ti) ;
-	    ii.tokens <- succ ii.tokens
+let add_term inverter doc_handler term pos =		
+		Lex.update inverter.lexicon (Terminfo.Collector.empty ()) term (fun ti -> Terminfo.Collector.occurrence ti doc_handler.cur_doc pos; ti) ;
+	    inverter.tokens <- succ inverter.tokens;
+	 	ForIndex.add_term inverter.for_index doc_handler.for_index_doc_handler term pos
 ;;
 
 
 
 		
-let write_current_terminfos ii file =
-	let oc = open_out_bin file in
-	Lex.sorted_iter (Terminfo.write oc) ii.lexicon;
-	close_out oc
 	
 let flush_memory ii =
 	if ii.tokens > 0 then
 	begin
-	Timem.start ii.stopper "flushing";
-		let temp_file = "/terminfos.temp." ^ (string_of_int (List.length ii.temp_files)) in
-		ii.temp_files <- temp_file :: ii.temp_files ;
-		write_current_terminfos ii temp_file;
+	Timem.start ii.stopper "flushing";	
+		let iterator f = Lex.sorted_iter f ii.lexicon in
+		let _ = Merger.flush ii.merger iterator in
 		let t = ii.tokens in
 		ii.tokens <- 0;
 		Lex.clear ii.lexicon;
 	Timem.finish_speed ii.stopper t "tokens";
 	end
 
-let end_doc ii =
+let end_doc ii doc_handler=
+		 ForIndex.end_doc ii.for_index doc_handler.for_index_doc_handler;
+
 		(*Sok szivas targya volt, hogy ennek ide kell kerulnie. Ha dokumentum hataron
 			belul lenne flush, akkor terminfo listak atlapolodhatnanak, ami bonyolitja
 			az osszefuzest.*)
@@ -78,30 +79,30 @@ let end_doc ii =
 			Timem.finish_speed ii.stopper t "tokens";			
 			Timem.start ii.stopper "run";
 			Timem.start ii.stopper "collecting terminfos";
-
 		end
 
 			
 let end_collection ii = 
+	ForIndex.end_collection ii.for_index;
 	(* kell-e merge *)
-	if (List.length ii.temp_files) > 0 then begin
+	if Merger.need_merge ii.merger then begin
 		let t = ii.tokens in
 		Timem.finish_speed ii.stopper t "tokens";
 		flush_memory ii;
 		Timem.finish_speed ii.stopper t "tokens";
 		Timem.start ii.stopper "merging";
-		Merger.merge ii.index_writer ii.temp_files;
+		Merger.merge ii.index_writer ii.merger;
 		Timem.finish ii.stopper
 	end
 	else begin
 		let  t= ii.tokens in
 		Timem.finish_speed ii.stopper t "tokens";
 		Timem.start ii.stopper "writing terminfos";	
-		Lex.sorted_iter (TermIndex.write_term_entry ii.index_writer) ii.lexicon;
+		Lex.sorted_iter (InvIndex.write_term_entry ii.index_writer) ii.lexicon;
 		Timem.finish_speed ii.stopper t "tokens";
 		Timem.finish_speed ii.stopper t "tokens"
 	end;
-	TermIndex.close_writer ii.index_writer;
+	InvIndex.close_writer ii.index_writer;
 	Timem.finish_speed ii.stopper ii.doc_count "documents"
 ;;
 		

@@ -1,3 +1,8 @@
+
+
+exception End_of_terminfos
+
+(* *)
 (** Egy termhez tartozo doc, freq parok es a poziciok. Egy nagy bufferbe irjuk be az adatokat.
 	doc_id, freq, pos_1, pos_2 ... pos_freq sorozatok vannak a tombben.
 	A doc_id-k novekvo sorrendben kell, hogy erkezzenek.
@@ -5,11 +10,14 @@
 	
 (** az utolso doc adatait kulon taroljuk *)
 
+module Collector =
+struct
+
 type t = {mutable df             : int ;
 		  mutable tf             : int ;
           mutable last_doc  : int;
 		  mutable last_positions : int list;
-	      buffer                 : (int) BlockList.t ;
+	      buffer                 : BlockList.Int.t ;
 		}
 				
 				
@@ -18,7 +26,7 @@ let empty () = {
 	tf              = 0;
 	last_doc        = -1;
 	last_positions  = [];
-	buffer = BlockList.create 0;
+	buffer = BlockList.Int.create () ;
 	}
 	
 let last_doc ti = ti.last_doc;;
@@ -26,12 +34,13 @@ let last_doc ti = ti.last_doc;;
 	
 let df ti = ti.df ;;
 let tf ti = ti.tf;;
+let doclist ti = ti.buffer;;
 	
 let flush_last ti = 
 		if ti.last_doc > -1 then begin
-			BlockList.add ti.buffer ti.last_doc;
-			BlockList.add ti.buffer (List.length ti.last_positions);
-			List.iter (BlockList.add ti.buffer) (List.rev ti.last_positions)
+			BlockList.Int.add ti.buffer ti.last_doc;
+			BlockList.Int.add ti.buffer (List.length ti.last_positions);
+			List.iter (BlockList.Int.add ti.buffer) (List.rev ti.last_positions)
 		end
 		
 let occurrence ti doc pos =
@@ -54,44 +63,9 @@ let append ti1 ti2 =
 	ti1.tf <- ti1.tf + ti1.tf;
 	ti1.last_doc <- ti2.last_doc;
 	ti1.last_positions <- ti2.last_positions;
-	BlockList.append ti1.buffer ti2.buffer
+	BlockList.Int.append ti1.buffer ti2.buffer
 
-(** ha egyszer kiirtad, tobbet nem hasznalhatod!*)
-let write oc term ti =
-	flush_last ti;
-	Io.output_string oc term;
-    output_binary_int oc ti.df;
-    output_binary_int oc ti.tf;
-	BlockList.iter (output_binary_int oc) ti.buffer
-		
-exception End_of_terminfos
 
-let read ic = 
-	let term = try Io.input_string ic with End_of_file -> raise End_of_terminfos in
-	let df = input_binary_int ic in
-    let tf = input_binary_int ic in 
- 	let buffer = BlockList.create 0 in
-	for i = 1 to (df-1) do
-		(* doc_id *)
-		BlockList.add buffer (input_binary_int ic);
-		(* freq *)
-		let n = input_binary_int ic in
-		BlockList.add buffer n ;
-		for j = n downto 1 do
-			BlockList.add buffer (input_binary_int ic)
-		done;
-	done;
-	(* last_doc-ot kulon olvassuk *)
-	let last_doc = input_binary_int ic in
-	(* freq *)
-	let n = input_binary_int ic in
-	let last_positions = ref [] in
-	for j = n downto 1 do
-		last_positions := (input_binary_int ic) :: !last_positions
-	done;
-	
-	(term, {df = df; tf =tf; last_doc = last_doc; last_positions = !last_positions; buffer = buffer})
-	
 let pretty_print term ti =
     Printf.printf "%s -> " term;
     Printf.printf "df = %d tf = %d " ti.df ti.tf;
@@ -110,11 +84,70 @@ let pretty_print term ti =
             state := !state - 1;
 		end
 	in
-	BlockList.iter aux ti.buffer;
+	BlockList.Int.iter aux ti.buffer;
 	Printf.printf "\n%d: " ti.last_doc;
     Printf.printf " %d x" (List.length ti.last_positions);	
 	List.iter (Printf.printf " %d") (List.rev ti.last_positions);
 	Printf.printf "\n";;
+
+
+(** ha egyszer kiirtad, tobbet nem hasznalhatod!*)
+let write oc  ti =
+	flush_last ti;
+    output_binary_int oc ti.df;
+    output_binary_int oc ti.tf;
+	BlockList.Int.iter (output_binary_int oc) ti.buffer
+	
+	
+
+
+let read ic = 
+	let df =  try input_binary_int ic with End_of_file -> raise End_of_terminfos  in
+    let tf = input_binary_int ic in 
+ 	let buffer = BlockList.Int.create () in
+	for i = 1 to (df-1) do
+		(* doc_id *)
+		BlockList.Int.add buffer (input_binary_int ic);
+		(* freq *)
+		let n = input_binary_int ic in
+		BlockList.Int.add buffer n ;
+		for j = n downto 1 do
+			BlockList.Int.add buffer (input_binary_int ic)
+		done;
+	done;
+	(* last_doc-ot kulon olvassuk *)
+	let last_doc = input_binary_int ic in
+	(* freq *)
+	let n = input_binary_int ic in
+	let last_positions = ref [] in
+	for j = n downto 1 do
+		last_positions := (input_binary_int ic) :: !last_positions
+	done;
+	
+	{df = df; tf =tf; last_doc = last_doc; last_positions = !last_positions; buffer = buffer}
+
+end;;
+
+
+type t =  BlockList.Int.t
+
+let write oc t =
+		BlockList.Int.iter (output_binary_int oc) t
+
+let read ic df =
+	let buffer = BlockList.Int.create () in
+	for i = 1 to (df) do
+		(* doc_id *)
+		BlockList.Int.add buffer (input_binary_int ic);
+		(* freq *)
+		let n = input_binary_int ic in
+		BlockList.Int.add buffer n ;
+		for j = n downto 1 do
+			BlockList.Int.add buffer (input_binary_int ic)
+		done;
+	done;
+	buffer
+	
 (*	
 let _ =
       let ti1 = empty () in

@@ -1,34 +1,47 @@
  
 let proc_sentence ii sentence =
 		let st = String.concat " " (List.map (fun (w,_) -> w) sentence) in
-		let meta = Docmeta.empty () in
-		let _ = Docmeta.add_string meta 0 st in
-		let _ = InvIndex.start_doc ii in
-        let n = List.fold_left (fun i (word, gold)  ->  InvIndex.add_term ii word  i ;  (succ i)) (0) sentence in
-	    InvIndex.end_doc  ii
+		let meta = DocMeta.empty () in
+		let _ = DocMeta.add_string meta 0 st in
+		let doc_handler = Inverter.start_doc ii meta in
+		let aux i (word, _) =
+				Inverter.add_term ii doc_handler word  i;
+				succ i
+		in
+        let n = List.fold_left aux 0 sentence in
+	    Printf.printf "%d" n;
+	Inverter.end_doc  ii doc_handler;
+	  Printf.printf "%d" n;
 ;;
 
 let print_stat reader =
-	Printf.printf "unique terms: %d\n" (TermIndex.types reader)
+	Printf.printf "unique terms: %d\n" (InvIndex.types reader)
 ;;
 	
 let search index_dir =
-	let id = TermIndex.open_reader index_dir in
-	print_stat id
+	let ii = InvIndex.open_reader index_dir in
+	let fi = ForIndex.open_reader index_dir in
+	let ti = InvIndex.fetch_posting ii "a" in
+
+	print_stat ii
 ;;
 
 let index indexdir limit =
 	Printf.eprintf "token limit = %d\n" limit;
-	let ii = InvIndex.start_collection indexdir limit in
+	let ii = Inverter.start_collection indexdir limit in
 	Io.iter_sentence stdin ( proc_sentence ii ) ;
-	InvIndex.end_collection ii
+	Inverter.end_collection ii
 	;;
 (*	Merger.pretty_print_stream "terminfos.merged" 
  *)
 ()
 
+let dump tempfile = 
+	Merger.pretty_print_stream tempfile
+;;
+
 let usage () = 
-	Printf.eprintf "usage : %s index-dir build|search  tok\n" Sys.argv.(0)
+	Printf.eprintf "usage : %s index-dir build tok | search | dump-temp\n" Sys.argv.(0)
 ;;
 	
 let _ =	
@@ -39,5 +52,6 @@ else
 	match Sys.argv.(2) with
 		"build" -> index indexdir  (int_of_string Sys.argv.(3))
 	 |  "search" -> search indexdir
+	 |  "dump-temp" -> dump Sys.argv.(3)
 	 | _ -> usage () ; exit 1
 	

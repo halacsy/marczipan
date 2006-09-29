@@ -1,31 +1,59 @@
-type stream = {ic: in_channel; mutable term : string ; mutable terminfo :  Terminfo.t} 
+type t = {work_dir   : string;
+		  mutable temp_files : string list}
+
+let init work_dir = {work_dir = work_dir; temp_files = [] }
+	
+type stream = {ic: in_channel; mutable term : string ; mutable terminfo :  Terminfo.Collector.t} 
 			
+(* ide kerul a tempfile iras az inverterbol, hogy egy helyen legyen *)
+
+
+let write_to_temp oc term collected =
+	Io.output_string oc term;
+	Terminfo.Collector.write oc collected
+;;
+
+let need_merge m = (List.length m.temp_files) > 0
+
+let flush m iter =
+	let temp_file = m.work_dir ^ "/merger.temp." ^ (string_of_int (List.length m.temp_files)) in
+	m.temp_files <- temp_file :: m.temp_files ;
+	let oc = open_out_bin temp_file in
+	iter (write_to_temp oc);
+	close_out oc
+;;		
+
+let read_next_from_temp ic =
+	let term = Io.input_string ic in
+	let collected = Terminfo.Collector.read ic in
+	(term, collected)
+;;
 		
 (* todo: itt derul ki, ha ures a fajl.*)
 let open_terminfo_stream file =
 	let ic = open_in_bin file in
-	let (term, first) = Terminfo.read ic in
+	let (term, first) = read_next_from_temp ic in
 	{ic = ic; term = term; terminfo = first}
 	
 (** terminfo streambol felolvassa a kovetkezo terminfot. Ha nincs tobb, zarja a streamet.*)			
 let fetch_next stream = 
-	  	try 
-			let (term, terminfo) = Terminfo.read stream.ic in
+	  try
+			let (term, terminfo) = read_next_from_temp stream.ic in
 			stream.term <- term;
 			stream.terminfo <- terminfo;
-		with Terminfo.End_of_terminfos -> 	close_in stream.ic ; raise Terminfo.End_of_terminfos
+		with End_of_file -> 	close_in stream.ic ; raise End_of_file
 
 
 let pretty_print_stream file =
 	let stream = open_terminfo_stream file in
 	let rec loop () = 
-			Terminfo.pretty_print stream.term stream.terminfo;
+			Terminfo.Collector.pretty_print stream.term stream.terminfo;
 			fetch_next stream;
 			loop ()
 	in
 	try
 		loop ()
-	with Terminfo.End_of_terminfos -> ()
+	with End_of_file -> ()
 ;;
 
 (* kiveszi a felsot a heap-bol, a stream-et fetcheli, majd visszarakja *)
@@ -34,8 +62,8 @@ let get_top heap =
 	let ti = stream.terminfo in
 	let heap= try 
 				fetch_next stream;
-				Heap.insert heap  (stream.term, Terminfo.last_doc stream.terminfo) stream
-			  with Terminfo.End_of_terminfos -> heap
+				Heap.insert heap  (stream.term, Terminfo.Collector.last_doc stream.terminfo) stream
+			  with End_of_file -> heap
 	in
 	(term, ti, heap);;
 	
@@ -48,7 +76,7 @@ let merge_tops heap  =
 			flush_all ();
 			if term = nterm then
 				let (_, ti, heap) = get_top heap in
-				Terminfo.append merged_ti ti;
+				Terminfo.Collector.append merged_ti ti;
 				aux heap 
 			else
 	 			(heap)
@@ -67,7 +95,7 @@ let imerge writer files =
 	(* megnyitjuk az osszes fajlt es beolvassuk az elso terminfoit, es heapbe rakjul *)
 	let aux heap file =
 		let stream = open_terminfo_stream file in
-		Heap.insert heap  (stream.term, Terminfo.last_doc stream.terminfo) stream
+		Heap.insert heap  (stream.term, Terminfo.Collector.last_doc stream.terminfo) stream
 	in
 	let heap = List.fold_left aux (Heap.empty) files in
 
@@ -83,11 +111,11 @@ let imerge writer files =
 ;;
 
 let final_merge writer files =
-	imerge (TermIndex.write_term_entry writer) files;
+	imerge (InvIndex.write_term_entry writer) files;
 ;;		
 
-let merge writer files =
-	final_merge writer files 
+let merge writer m =
+	final_merge writer m.temp_files 
 ;;
 
 (*

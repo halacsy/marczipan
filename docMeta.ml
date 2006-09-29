@@ -23,6 +23,6 @@ let read ic =
 	Marshal.from_channel ic
 ;;
 	
-let write meta oc =
+let write  oc meta =
 	    Marshal.to_channel oc meta []
 ;;

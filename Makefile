@@ -1,14 +1,15 @@
-#SOURCES = lexicon.mli btree.mli bst.ml btree.ml bursttrie.mli bursttrie.ml  #mfhash.ml hashlex.ml io.ml test.ml
-SOURCES = io.ml timem.ml mfhash.ml hashlex.ml blockList.ml  docinfo.ml docmeta.ml terminfo.ml termIndex.ml heap.ml merger.ml invIndex.ml  indexer.ml
-#SOURCES = io.ml timem.ml mfhash.ml hashlex.ml varray.ml  docinfo.ml invIndex.ml  test.ml
+STRUCTS = structs/mfhash.ml structs/hashlex.ml structs/blockList.mli structs/blockList.ml structs/heap.ml
+UTIL = io.ml timem.ml
+INDEX = terminfo.ml docMeta.ml invIndex.ml merger.ml  forIndex.ml inverter.ml 
+SOURCES = ${UTIL}  ${STRUCTS}  ${INDEX} main.ml
 
 RESULT = test
 
 #LIBDIRS=/usr/local/lib/ocamorph 
 #INCDIRS=/usr/local/lib/ocamorph
 #export OCAMLNCFLAGS := -unsafe -inline 100 
-all:debug-code
+#all:debug-code
 #all: nc
-#all: profiling-byte-code
+all: profiling-byte-code
 
 -include OCamlMakefile
