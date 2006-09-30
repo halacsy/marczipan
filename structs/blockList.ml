@@ -43,7 +43,7 @@ type  t = {first   :  block;
 			 mutable ix      : int ;
 			 mutable len     : int }
 
-let next_size prev =  6000
+let next_size prev = if prev = 0 then 16 else (min (prev * 2) 2048) 
 	
 let default = BT.default
 	
