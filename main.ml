@@ -22,19 +22,19 @@ let search index_dir =
 	let (df, tf, open_stream) = InvIndex.term_info ii term in
 	Printf.printf "term %s df tf %d %d\n" term df tf ;
 	let doc_stream = open_stream () in
-	let rec loop () =
+	let rec loop i =
 		let (docid, freq) = DocList.next_doc doc_stream in
 		let di = ForIndex.doc_info fi docid in
 		
-		Printf.printf "doc: %d freq: %d doclen: %d \n" docid freq (ForIndex.doc_len di);
+		Printf.printf "%d. doc: %d freq: %d doclen: %d \n" i docid freq (ForIndex.doc_len di);
 		let meta = ForIndex.doc_meta fi di in
 		Printf.printf "%s\n" (DocMeta.get_string meta 0); 	
-		loop ()
+		loop (i+1)
 	in
-(*	try
-*)	loop ()
-(*	with DocList.End_of_stream -> ()
-*)
+	try
+	loop 1
+	with DocList.End_of_stream -> ()
+
 ;;
 
 

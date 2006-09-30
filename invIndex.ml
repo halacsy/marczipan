@@ -51,8 +51,6 @@ let open_reader index_dir =
 		let df   = input_binary_int lic in
 		let tf   = input_binary_int lic in
 		let pos  = input_binary_int lic in
-		if term = "az" then
-		Printf.printf "loading term %s tf %d\n" term tf;
 		Lex.update reader.lexicon (df, tf, pos) term (fun x -> x);
 		reader.tokens <- reader.tokens + tf;
 		loop ()
@@ -70,17 +68,10 @@ let types reader = Lex.size reader.lexicon;;
 let tokens reader = reader.tokens;;
 	
 let term_info reader term =
-	Printf.printf "search term %s" term;
-	let aux (df, tf, pos) =
-		Printf.printf "tf = %d\n" tf;
-		(df, tf, pos)
-	in
-	Lex.update reader.lexicon (0,0,0) "az" aux;
 	let (df, tf, pos) = Lex.find reader.lexicon term in
 	let open_stream () =
 		seek_in reader.doclist_ic  pos;
 		let doclist = DocList.read reader.doclist_ic  df in
-		DocList.pretty_print doclist;
     	DocList.open_stream doclist
 	in
 	(df, tf, open_stream)
