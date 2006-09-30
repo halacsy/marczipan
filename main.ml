@@ -20,8 +20,9 @@ let print_stat reader =
 	
 let search index_dir =
 	let ii = InvIndex.open_reader index_dir in
-	let fi = ForIndex.open_reader index_dir in
-	let term = "a" in
+(*	InvIndex.pretty_print ii;
+*)	let fi = ForIndex.open_reader index_dir in
+	let term = "A" in
 	let (df, tf, open_stream) = InvIndex.term_info ii term in
 	Printf.printf "term %s df tf %d %d\n" term df tf ;
 	let doc_stream = open_stream () in
