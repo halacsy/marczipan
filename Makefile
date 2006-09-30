@@ -8,9 +8,9 @@ RESULT = test
 #LIBDIRS=/usr/local/lib/ocamorph 
 #INCDIRS=/usr/local/lib/ocamorph
 export OCAMLNCFLAGS := -unsafe -inline 100 
-#all:debug-code
+all:debug-code
 #all: profiling-native-code
-all: nc
+#all: nc
 #all: profiling-byte-code
 
 -include OCamlMakefile
