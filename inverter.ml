@@ -25,7 +25,7 @@ let start_collection dir max_tokens =
 	Timem.start stopper "collecting terminfos";
 	
 	{tokens               = 0; 
-	 lexicon              = Lex.create 10000; 
+	 lexicon              = Lex.create 10; 
 	 doc_count            = 0;
 	 merger               = Merger.init dir;
 	 max_tokens_in_memory = max_tokens; 

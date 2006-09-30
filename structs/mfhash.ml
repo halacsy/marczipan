@@ -76,6 +76,7 @@ let resize tbl =
   let odata = tbl.data in
   let osize = Array.length odata in
   let nsize = min (2 * osize + 1) Sys.max_array_length in
+   Printf.printf "resizing %d" nsize;
   if nsize <> osize then 
     let ndata = Array.create nsize Empty in
     let rec insert_bucket = function
