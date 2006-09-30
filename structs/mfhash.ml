@@ -72,11 +72,11 @@ let length h = h.size
 
 let resize tbl =
 
-	begin
+	
   let odata = tbl.data in
   let osize = Array.length odata in
   let nsize = min (2 * osize + 1) Sys.max_array_length in
-  if nsize <> osize then begin
+  if nsize <> osize then 
     let ndata = Array.create nsize Empty in
     let rec insert_bucket = function
         Empty -> ()
@@ -103,12 +103,11 @@ let resize tbl =
 	in			
     for i = 0 to osize - 1 do
       insert_bucket odata.(i)
-    done;
-    tbl.data <- ndata;
-	
-  end
-end
-
+    done
+else
+	Printf.eprintf "not enough memory to resize the hash\n";
+ 
+;;
 let iter f h =
   let rec do_bucket = function
       Empty ->

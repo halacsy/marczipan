@@ -42,7 +42,7 @@ let close_writer w =
 
 let open_reader index_dir = 
 	let reader = {doclist_ic = open_in_bin (index_dir ^ "/" ^ "postings");
-				  lexicon = Lex.create 4000 ;
+				  lexicon = Lex.create 10 ;
 				   tokens  = 0;
 				  stopper = Timem.init ();
 	} in
