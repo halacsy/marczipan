@@ -19,9 +19,12 @@ let search index_dir =
 (*	InvIndex.pretty_print ii;
 *)	let fi = ForIndex.open_reader index_dir in
 	let term = "az" in
+	let t = Timem.init () in
+	Timem.start t ("searching " ^ term);
 	let (df, tf, open_stream) = InvIndex.term_info ii term in
 	Printf.printf "term %s df tf %d %d\n" term df tf ;
 	let doc_stream = open_stream () in
+	Timem.finish t ;
 	let rec loop i =
 		let (docid, freq) = DocList.next_doc doc_stream in
 		let di = ForIndex.doc_info fi docid in
