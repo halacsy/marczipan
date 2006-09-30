@@ -7,7 +7,7 @@ module HashedInt = struct
 end ;;
 module IntHashTable = Mfhash.Make (HashedInt)
 
-let default_type_freqs_size = 10
+let default_type_freqs_size = 30
 
 
 				

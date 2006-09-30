@@ -76,16 +76,15 @@ let resize tbl =
   let odata = tbl.data in
   let osize = Array.length odata in
   let nsize = min (2 * osize + 1) Sys.max_array_length in
-   Printf.printf "resizing %d" nsize;
   if nsize <> osize then 
     let ndata = Array.create nsize Empty in
     let rec insert_bucket = function
         Empty -> ()
       | Cons(onode) ->
          (* preserve ordering, insert first the first *)
-		 begin
+	
           let nidx = (H.hash onode.key nsize) in
-          match ndata.(nidx) with
+          let _ = match ndata.(nidx) with
 			(* this is empty bucket *)
 	 		Empty -> ndata.(nidx) <- 	Cons( {next = Empty; 
 										  key = onode.key; 
@@ -98,13 +97,14 @@ let resize tbl =
                     | Cons(nnode) -> aux nnode ;
 				in
 				aux node ;
+		  in
+		  insert_bucket onode.next
 		  
-		 insert_bucket onode.next ;
-		end
 	in			
     for i = 0 to osize - 1 do
       insert_bucket odata.(i)
-    done
+    done;
+    tbl.data <- ndata
 else
 	Printf.eprintf "not enough memory to resize the hash\n";
  
