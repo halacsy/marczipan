@@ -9,6 +9,7 @@ type term_record = (int * int * int)
 
 type reader = {doclist_ic : in_channel;
 			   lexicon      : (term_record) Lex.t;
+			   mutable tokens       : int;
 				stopper     : Timem.t
 }
 
@@ -19,6 +20,8 @@ let open_writer index_dir =
 	} 
 
 let write_term_entry w term terminfo =
+	Printf.printf "writing term to index: %s\n" term;
+	DocList.pretty_print (DocList.Collector.doclist terminfo);
 	flush w.doclist_oc;
 	let pos = pos_out w.doclist_oc in
 	let df = DocList.Collector.df terminfo in
@@ -35,39 +38,51 @@ let close_writer w =
 	close_out w.lexicon_oc
 ;;	
 
-let load_lookup_table index_dir lex = 
+
+
+let open_reader index_dir = 
+	let reader = {doclist_ic = open_in_bin (index_dir ^ "/" ^ "postings");
+				  lexicon = Lex.create 4000 ;
+				   tokens  = 0;
+				  stopper = Timem.init ();
+	} in
+	Timem.start reader.stopper "loading lexicon";
 	let lic =  open_in_bin (index_dir ^ "/" ^ "lexicon") in
 	let rec loop () = 
 		let term = Io.input_string lic in
 		let df   = input_binary_int lic in
 		let tf   = input_binary_int lic in
 		let pos  = input_binary_int lic in
-		Lex.update lex (df, tf, pos) term (fun x -> x);
+		if term = "az" then
+		Printf.printf "loading term %s tf %d\n" term tf;
+		Lex.update reader.lexicon (df, tf, pos) term (fun x -> x);
+		reader.tokens <- reader.tokens + tf;
 		loop ()
 	in
 	try
 	 loop () 
- 	with End_of_file -> ()
+ 	with End_of_file -> 
 
-let open_reader index_dir = 
-	let reader = {doclist_ic = open_in_bin (index_dir ^ "/" ^ "postings");
-				  lexicon = Lex.create 10 ;
-				  stopper = Timem.init ();
-	} in
-	Timem.start reader.stopper "loading lexicon";
-	let _ = load_lookup_table index_dir reader.lexicon in
 	Timem.finish reader.stopper;
 	reader
 ;;
 
-let types reader = Lex.size reader.lexicon
+let types reader = Lex.size reader.lexicon;;
+	
+let tokens reader = reader.tokens;;
 	
 let term_info reader term =
-	
+	Printf.printf "search term %s" term;
+	let aux (df, tf, pos) =
+		Printf.printf "tf = %d\n" tf;
+		(df, tf, pos)
+	in
+	Lex.update reader.lexicon (0,0,0) "az" aux;
 	let (df, tf, pos) = Lex.find reader.lexicon term in
 	let open_stream () =
 		seek_in reader.doclist_ic  pos;
 		let doclist = DocList.read reader.doclist_ic  df in
+		DocList.pretty_print doclist;
     	DocList.open_stream doclist
 	in
 	(df, tf, open_stream)
@@ -80,4 +95,4 @@ let pretty_print reader =
 		let doclist = DocList.read reader.doclist_ic  df in
 		DocList.pretty_print doclist ; 
 	in
-	Lex.iter  aux reader.lexicon
+	Lex.sorted_iter  aux reader.lexicon

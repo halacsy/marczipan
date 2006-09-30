@@ -15,6 +15,8 @@ type inverter = {mutable tokens 		: int;
 type doc_handler = {cur_doc               : int;
 				    for_index_doc_handler : ForIndex.doc_handler
  }
+
+let doc_id dh = dh.cur_doc;;
 	
 let start_collection dir max_tokens = 
 	let stopper = Timem.init () in
@@ -43,8 +45,17 @@ let start_doc ii meta  =
 		
 ;;
 
-let add_term inverter doc_handler term pos =		
-		Lex.update inverter.lexicon (DocList.Collector.empty ()) term (fun ti -> DocList.Collector.occurrence ti doc_handler.cur_doc pos; ti) ;
+let add_term inverter doc_handler term pos =	
+		let aux ti =
+			Printf.printf "elotte\n";
+			DocList.Collector.pretty_print term ti;
+			DocList.Collector.occurrence ti doc_handler.cur_doc pos; 
+				Printf.printf "utana\n";
+				DocList.Collector.pretty_print term ti;
+		
+			ti
+		in
+		Lex.update inverter.lexicon (DocList.Collector.empty ()) term (aux) ;
 	    inverter.tokens <- succ inverter.tokens;
 	 	ForIndex.add_term inverter.for_index doc_handler.for_index_doc_handler term pos
 ;;

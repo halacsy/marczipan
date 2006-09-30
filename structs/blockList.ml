@@ -43,7 +43,7 @@ type  t = {first   :  block;
 			 mutable ix      : int ;
 			 mutable len     : int }
 
-let next_size prev =  16
+let next_size prev =  3
 	
 let default = BT.default
 	
@@ -94,10 +94,12 @@ exception End_of_stream;;
 			
 let rec next s =  
 		if s.remain = 0 then raise End_of_stream;
-		s.remain <- s.remain - 1;
+	
 		if (Array.length s.cur_block.content) > s.inner_block_ix then
-			let elt = unsafe_get s.cur_block.content s.inner_block_ix  in
+		    let elt = unsafe_get s.cur_block.content s.inner_block_ix  in
 			let _ = s.inner_block_ix <- (s.inner_block_ix + 1) in
+			s.remain <- s.remain - 1;
+			
 			elt
 		else
 			match s.cur_block.next with
@@ -108,8 +110,11 @@ let rec next s =
 let rec skip s n =
 	if n = 0 then ();
 	if  s.remain = 0 then raise End_of_stream;
+	if s.remain < n then raise End_of_stream;
+	
+	(* mennyi hely van meg a blockban*)
 	let remain_in_block = (Array.length s.cur_block.content) -  s.inner_block_ix in
-	if n >= remain_in_block then 
+	if n > remain_in_block then begin
 		match s.cur_block.next with
   			None ->  raise End_of_stream; 
 			| Some(next_block) -> 
@@ -117,11 +122,13 @@ let rec skip s n =
 				s.inner_block_ix <- 0; 
 				s.remain <- s.remain - remain_in_block;
 				skip s (n - remain_in_block)
-	else
+		end
+	else begin
 		s.remain <- s.remain - n;
 		s.inner_block_ix <- s.inner_block_ix + n
-	 
-let open_stream bl = {cur_block = bl.first; inner_block_ix = 0; remain = bl.len} ;;
+	 end
+	
+let open_stream bl =  {cur_block = bl.first; inner_block_ix = 0; remain = bl.len} ;;
 end;;
 
 module Int = Make(IntType)

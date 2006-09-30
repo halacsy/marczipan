@@ -5,24 +5,21 @@ let proc_sentence ii sentence =
 		let _ = DocMeta.add_string meta 0 st in
 		let doc_handler = Inverter.start_doc ii meta in
 		let aux i (word, _) =
+				if word = "az" then begin print_int (Inverter.doc_id doc_handler); print_endline word end;
 				Inverter.add_term ii doc_handler word  i;
 				succ i
 		in
         let n = List.fold_left aux 0 sentence in
-	    Printf.printf "%d" n;
-	Inverter.end_doc  ii doc_handler;
-	  Printf.printf "%d" n;
+		Inverter.end_doc  ii doc_handler
+	
 ;;
 
-let print_stat reader =
-	Printf.printf "unique terms: %d\n" (InvIndex.types reader)
-;;
 	
 let search index_dir =
 	let ii = InvIndex.open_reader index_dir in
 (*	InvIndex.pretty_print ii;
 *)	let fi = ForIndex.open_reader index_dir in
-	let term = "A" in
+	let term = "az" in
 	let (df, tf, open_stream) = InvIndex.term_info ii term in
 	Printf.printf "term %s df tf %d %d\n" term df tf ;
 	let doc_stream = open_stream () in
@@ -35,10 +32,23 @@ let search index_dir =
 		Printf.printf "%s\n" (DocMeta.get_string meta 0); 	
 		loop ()
 	in
-	try
-	loop ()
-	with DocList.End_of_stream -> ()
+(*	try
+*)	loop ()
+(*	with DocList.End_of_stream -> ()
+*)
+;;
 
+
+let dump_index index_dir =
+	let ii = InvIndex.open_reader index_dir in
+	InvIndex.pretty_print ii
+;;
+
+
+let print_stat index_dir =
+	let ii = InvIndex.open_reader index_dir in
+	Printf.printf "unique terms: %d\n" (InvIndex.types ii);
+	Printf.printf "unique tokens: %d\n" (InvIndex.tokens ii)
 ;;
 
 let index indexdir limit =
@@ -56,7 +66,7 @@ let dump tempfile =
 ;;
 
 let usage () = 
-	Printf.eprintf "usage : %s index-dir build tok | search | dump-temp\n" Sys.argv.(0)
+	Printf.eprintf "usage : %s index-dir build tok | search | dump-temp | dump-index | stat \n" Sys.argv.(0)
 ;;
 	
 let _ =	
@@ -66,6 +76,8 @@ else
 	let indexdir = Sys.argv.(1) in
 	match Sys.argv.(2) with
 		"build" -> index indexdir  (int_of_string Sys.argv.(3))
+	 |  "dump-index" -> dump_index indexdir
+	 |  "stat" -> print_stat indexdir
 	 |  "search" -> search indexdir
 	 |  "dump-temp" -> dump Sys.argv.(3)
 	 | _ -> usage () ; exit 1
