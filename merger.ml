@@ -9,10 +9,8 @@ type stream = {ic: in_channel; mutable term : string ; mutable terminfo :  DocLi
 
 
 let write_to_temp oc term collected =
-	if term = "Az" then Printf.printf "before flush\n"; DocList.Collector.pretty_print term collected;
 	Io.output_string oc term;
 	DocList.Collector.write oc collected;
-    Printf.printf "flushed: %s\n" term
 ;;
 
 let need_merge m = (List.length m.temp_files) > 0

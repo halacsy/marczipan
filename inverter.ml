@@ -47,12 +47,7 @@ let start_doc ii meta  =
 
 let add_term inverter doc_handler term pos =	
 		let aux ti =
-			Printf.printf "elotte\n";
-			DocList.Collector.pretty_print term ti;
 			DocList.Collector.occurrence ti doc_handler.cur_doc pos; 
-				Printf.printf "utana\n";
-				DocList.Collector.pretty_print term ti;
-		
 			ti
 		in
 		Lex.update inverter.lexicon (DocList.Collector.empty ()) term (aux) ;

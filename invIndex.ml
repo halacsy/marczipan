@@ -20,8 +20,6 @@ let open_writer index_dir =
 	} 
 
 let write_term_entry w term terminfo =
-	Printf.printf "writing term to index: %s\n" term;
-	DocList.pretty_print (DocList.Collector.doclist terminfo);
 	flush w.doclist_oc;
 	let pos = pos_out w.doclist_oc in
 	let df = DocList.Collector.df terminfo in

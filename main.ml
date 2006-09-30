@@ -5,7 +5,6 @@ let proc_sentence ii sentence =
 		let _ = DocMeta.add_string meta 0 st in
 		let doc_handler = Inverter.start_doc ii meta in
 		let aux i (word, _) =
-				if word = "az" then begin print_int (Inverter.doc_id doc_handler); print_endline word end;
 				Inverter.add_term ii doc_handler word  i;
 				succ i
 		in
