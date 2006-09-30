@@ -1,0 +1,250 @@
+hp@krusovice:~/Work/marcipan $ time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -20000000 | ./test 10000000
+token limit = 10000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 185.760000 doing 10000027 tokens; speed = 53833.048019 tokens/sec
+  4. flushing started
+  4. flushing finished: 17.280000 doing 10000027 tokens; speed = 578705.266204 tokens/sec
+ 2. run finished: 203.040000 doing 10000027 tokens; speed = 49251.512017 tokens/sec
+ 5. run started
+  6. collecting terminfos started
+  6. collecting terminfos finished: 103.430000 doing 8920658 tokens; speed = 86248.264527 tokens/sec
+  7. flushing started
+  7. flushing finished: 20.910000 doing 8920658 tokens; speed = 426621.616451 tokens/sec
+ 5. run finished: 124.340000 doing 8920658 tokens; speed = 71744.072704 tokens/sec
+ 8. merging started
+ 8. merging finished: 53.840000
+1. collection finished: 381.220000 doing 1076565 documents; speed = 2823.999266 documents/sec
+
+Nagy gaz van. Kisebb memoriaval gyorsabb
+
+time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -20000000 | ./test 5000000
+token limit = 5000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 53.460000 doing 5000033 tokens; speed = 93528.488590 tokens/sec
+  4. flushing started
+  4. flushing finished: 10.620000 doing 5000033 tokens; speed = 470812.900188 tokens/sec
+ 2. run finished: 64.080000 doing 5000033 tokens; speed = 78027.980649 tokens/sec
+ 5. run started
+  6. collecting terminfos started
+  6. collecting terminfos finished: 54.430000 doing 5000026 tokens; speed = 91861.583685 tokens/sec
+  7. flushing started
+  7. flushing finished: 10.650000 doing 5000026 tokens; speed = 469486.009390 tokens/sec
+ 5. run finished: 65.080000 doing 5000026 tokens; speed = 76828.918254 tokens/sec
+ 8. run started
+  9. collecting terminfos started
+  9. collecting terminfos finished: 34.630000 doing 5000001 tokens; speed = 144383.511406 tokens/sec
+  10. flushing started
+  10. flushing finished: 7.950000 doing 5000001 tokens; speed = 628930.943396 tokens/sec
+ 8. run finished: 42.580000 doing 5000001 tokens; speed = 117426.045092 tokens/sec
+ 11. run started
+  12. collecting terminfos started
+  12. collecting terminfos finished: 30.940000 doing 3920625 tokens; speed = 126717.032967 tokens/sec
+  13. flushing started
+  13. flushing finished: 7.690000 doing 3920625 tokens; speed = 509834.200260 tokens/sec
+ 11. run finished: 38.630000 doing 3920625 tokens; speed = 101491.716283 tokens/sec
+ 14. merging started
+ 14. merging finished: 41.880000
+1. collection finished: 252.250000 doing 1076565 documents; speed = 4267.849356 documents/sec
+
+real    4m12.271s
+user    4m6.271s
+sys     0m8.808s
+
+
+EBBOL IS LATSZIK A BAJ
+
+p@krusovice:~/Work/marcipan $ time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -2000000 | ./test 21000000
+token limit = 21000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 12.200000 doing 1889519 tokens; speed = 154878.606557 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 3.630000 doing 1889519 tokens; speed = 520528.650138 tokens/sec
+ 2. run finished: 15.830000 doing 1889519 tokens; speed = 119363.171194 tokens/sec
+1. collection finished: 15.830000 doing 110208 documents; speed = 6961.970941 documents/sec
+
+real    0m15.863s
+user    0m15.577s
+sys     0m0.599s
+hp@krusovice:~/Work/marcipan $ time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -4000000 | ./test 41000000
+token limit = 41000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 38.390000 doing 3785967 tokens; speed = 98618.572545 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 6.040000 doing 3785967 tokens; speed = 626815.728477 tokens/sec
+ 2. run finished: 44.430000 doing 3785967 tokens; speed = 85211.951384 tokens/sec
+1. collection finished: 44.430000 doing 213512 documents; speed = 4805.581814 documents/sec
+
+real    0m44.491s
+user    0m43.942s
+sys     0m1.132s
+
+KETSZER AKKORA KORPUSZNAL CSOKKEN A SEBESSEG
+
+ezek profileja
+
+head kisebb.prof 
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 43.52     65.79    65.79 12354305     0.00     0.00  caml_fl_allocate
+ 17.22     91.82    26.03     3290     0.01     0.01  mark_slice
+  3.72     97.44     5.62  1889519     0.00     0.00  camlMfhash__update_165
+  2.94    101.88     4.44     2115     0.00     0.00  sweep_slice
+  2.73    106.00     4.12  4933491     0.00     0.00  camlBlockList__add_84
+hp@krusovice:~/Work/marcipan $ head nagyobb.prof 
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 61.26    263.62   263.62 23307171     0.00     0.00  caml_fl_allocate
+ 12.27    316.44    52.82     6396     0.01     0.01  mark_slice
+  2.63    327.77    11.33  3785967     0.00     0.00  camlMfhash__update_165
+  1.94    336.10     8.33  9804156     0.00     0.00  camlBlockList__add_84
+  1.71    343.45     7.35     4199     0.00     0.00  sweep_slice
+
+
+na a nagyobbik exp novekedos blocklisttel
+
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 48.000000 doing 3785967 tokens; speed = 78874.312500 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 10.980000 doing 3785967 tokens; speed = 344805.737705 tokens/sec
+ 2. run finished: 58.980000 doing 3785967 tokens; speed = 64190.691760 tokens/sec
+1. collection finished: 58.980000 doing 213512 documents; speed = 3620.074602 documents/sec
+
+real    0m59.014s
+user    0m58.679s
+sys     0m0.837s
+hp@krusovice:~/Work/marcipan $ gprof test | head
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 58.50    166.11   166.11 10259267     0.00     0.00  caml_fl_allocate
+  7.29    186.82    20.71     5584     0.00     0.00  mark_slice
+  4.09    198.44    11.63  3785967     0.00     0.00  camlMfhash__update_165
+  3.08    207.18     8.74  9804156     0.00     0.00  camlBlockList__add_84
+  2.31    213.73     6.55  3680204     0.00     0.00  compare_val
+hp@krusovice:~/Work/marcipan $
+
+
+javitva a memoria:
+export OCAMLRUNPARAM="b,i=640000,s=640000"
+
+p@krusovice:~/Work/marcipan $ time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -4000000 | ./test 41000000
+token limit = 41000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 12.720000 doing 3785967 tokens; speed = 297638.915094 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 2.070000 doing 3785967 tokens; speed = 1828969.565217 tokens/sec
+ 2. run finished: 14.790000 doing 3785967 tokens; speed = 255981.541582 tokens/sec
+1. collection finished: 14.790000 doing 213512 documents; speed = 14436.240703 documents/sec
+
+real    0m14.832s
+user    0m14.423s
+sys     0m0.902s
+hp@krusovice:~/Work/marcipan $ time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -2000000 | ./test 41000000
+token limit = 41000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 6.070000 doing 1889519 tokens; speed = 311288.138386 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 1.310000 doing 1889519 tokens; speed = 1442380.916031 tokens/sec
+ 2. run finished: 7.380000 doing 1889519 tokens; speed = 256032.384824 tokens/sec
+1. collection finished: 7.380000 doing 110208 documents; speed = 14933.333333 documents/sec
+
+real    0m7.411s
+user    0m7.195s
+sys     0m0.479s
+hp@krusovice:~/Work/marcipan $ time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -4000000 | ./test 2000000
+token limit = 2000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 6.470000 doing 2000016 tokens; speed = 309121.483771 tokens/sec
+  4. flushing started
+  4. flushing finished: 1.470000 doing 2000016 tokens; speed = 1360555.102041 tokens/sec
+ 2. run finished: 7.940000 doing 2000016 tokens; speed = 251891.183879 tokens/sec
+ 5. run started
+  6. collecting terminfos started
+  6. collecting terminfos finished: 6.070000 doing 1785951 tokens; speed = 294225.864909 tokens/sec
+  7. flushing started
+  7. flushing finished: 1.650000 doing 1785951 tokens; speed = 1082394.545455 tokens/sec
+ 5. run finished: 7.720000 doing 1785951 tokens; speed = 231340.803109 tokens/sec
+ 8. merging started
+ 8. merging finished: 3.400000
+1. collection finished: 19.060000 doing 213512 documents; speed = 11202.098636 documents/sec
+
+real    0m19.078s
+user    0m17.908s
+sys     0m1.713s
+
+
+konstanst 16 novekedessel is fasza
+hp@krusovice:~/Work/marcipan $ time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -4000000 | ./test 41000000
+token limit = 41000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 11.180000 doing 3785967 tokens; speed = 338637.477639 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 2.380000 doing 3785967 tokens; speed = 1590742.436975 tokens/sec
+ 2. run finished: 13.560000 doing 3785967 tokens; speed = 279201.106195 tokens/sec
+1. collection finished: 13.560000 doing 213512 documents; speed = 15745.722714 documents/sec
+
+real    0m13.598s
+user    0m13.366s
+sys     0m0.768s
+hp@krusovice:~/Work/marcipan $ time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -2000000 | ./test 41000000
+token limit = 41000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 5.240000 doing 1889519 tokens; speed = 360595.229008 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 1.580000 doing 1889519 tokens; speed = 1195898.101266 tokens/sec
+ 2. run finished: 6.820000 doing 1889519 tokens; speed = 277055.571848 tokens/sec
+1. collection finished: 6.820000 doing 110208 documents; speed = 16159.530792 documents/sec
+
+real    0m6.839s
+user    0m6.704s
+sys     0m0.390s
+hp@krusovice:~/Work/marcipan $ time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -4000000 | ./test 2000000
+token limit = 2000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 5.560000 doing 2000016 tokens; speed = 359715.107914 tokens/sec
+  4. flushing started
+  4. flushing finished: 1.570000 doing 2000016 tokens; speed = 1273895.541401 tokens/sec
+ 2. run finished: 7.130000 doing 2000016 tokens; speed = 280507.152875 tokens/sec
+ 5. run started
+  6. collecting terminfos started
+  6. collecting terminfos finished: 4.870000 doing 1785951 tokens; speed = 366725.051335 tokens/sec
+  7. flushing started
+  7. flushing finished: 1.860000 doing 1785951 tokens; speed = 960188.709677 tokens/sec
+ 5. run finished: 6.730000 doing 1785951 tokens; speed = 265371.619614 tokens/sec
+ 8. merging started
+ 8. merging finished: 3.350000
+1. collection finished: 17.210000 doing 213512 documents; speed = 12406.275421 documents/sec
+
+
+a teljes
+1. collection finished: 340.130000 doing 4332330 documents; speed = 12737.276924 documents/sec
