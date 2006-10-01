@@ -18,7 +18,7 @@ let search index_dir =
 	let ii = InvIndex.open_reader index_dir in
 (*	InvIndex.pretty_print ii;
 *)	let fi = ForIndex.open_reader index_dir in
-	let term = "az" in
+	let term = "a" in
 	let t = Timem.init () in
 	Timem.start t ("searching " ^ term);
 	let (df, tf, open_stream) = InvIndex.term_info ii term in

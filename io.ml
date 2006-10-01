@@ -83,6 +83,13 @@ let input_string i =
 	let s = String.create l in
 	really_input i s 0 l ;
 	s
+	
+let output_vint64 oc i =
+	Codec.Int64.output_vbyte (output_byte oc) i
+	
+let input_vint64 ic =
+	Codec.Int64.input_vbyte (fun () -> input_byte ic)
+	
 (*	
 let _ =
 	let o = open_out_bin "/tmp/vacak" in

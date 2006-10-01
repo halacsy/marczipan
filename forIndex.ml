@@ -29,6 +29,7 @@ let start_collection dir =
 	 stat_oc = open_out_bin (dir ^ "/docindex");
 	 content_oc = open_out_bin (dir ^ "/docterms");
 	 meta_oc = open_out_bin (dir ^ "/docmeta")
+	
 	}
 	
 let start_doc fiw doc_id meta = 
@@ -44,13 +45,13 @@ let add_term fiw di term pos =
 let end_doc fiw  diw = 
 	(** kiirjuk a metat es feljegyezzuk a poziciojat *)
 	flush fiw.meta_oc;
-	let metastart = pos_out fiw.meta_oc in
+	let metastart = LargeFile.pos_out fiw.meta_oc in
 	DocMeta.write fiw.meta_oc diw.meta;
 	(** kiirjuk a doc adatait *)
 	output_binary_int fiw.stat_oc diw.doc_id;
 	output_binary_int fiw.stat_oc  diw.tokens;
 	output_binary_int fiw.stat_oc  (Lex.size diw.type_freqs);
-	output_binary_int fiw.stat_oc metastart;
+	Io.output_vint64 fiw.stat_oc (Int64.succ metastart);
 ;;	
 	
 let end_collection fiw =
@@ -62,7 +63,7 @@ let end_collection fiw =
 type ptr_terms_t = int
 
 (** pointer to the meta fields *)
-type ptr_meta_t = int 
+type ptr_meta_t = Int64.t 
 
 
 type doc_info = {types : int;
@@ -83,7 +84,7 @@ let read_docstats index_dir lex =
 		let docid = input_binary_int ic in
 		let len   =  input_binary_int ic in
 		let types = input_binary_int ic in
-		let meta_start = input_binary_int ic in
+		let meta_start = Int64.pred (Io.input_vint64 ic) in
 		let info = {types = types; len = len; ptr_meta = meta_start; ptr_terms = 0} in
 		IntHashTable.update lex info docid  (fun x -> x);
 		loop ()
@@ -105,7 +106,7 @@ let open_reader index_dir =
 	
 
 let doc_meta r di =
-	seek_in r.meta_ic di.ptr_meta; 
+	LargeFile.seek_in r.meta_ic di.ptr_meta; 
 	DocMeta.read r.meta_ic
 ;;
 
