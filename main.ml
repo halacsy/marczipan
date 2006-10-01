@@ -14,12 +14,12 @@ let proc_sentence ii sentence =
 ;;
 
 	
-let search index_dir =
+let search index_dir  =
 	let ii = InvIndex.open_reader index_dir in
 (*	InvIndex.pretty_print ii;
 *)	let fi = ForIndex.open_reader index_dir in
-	let term = "a" in
 	let t = Timem.init () in
+	let search term = 
 	Timem.start t ("searching " ^ term);
 	let (df, tf, open_stream) = InvIndex.term_info ii term in
 	Printf.printf "term %s df tf %d %d\n" term df tf ;
@@ -32,12 +32,29 @@ let search index_dir =
 		Printf.printf "%d. doc: %d freq: %d doclen: %d \n" i docid freq (ForIndex.doc_len di);
 		let meta = ForIndex.doc_meta fi di in
 		Printf.printf "%s\n" (DocMeta.get_string meta 0); 	
-		loop (i+1)
+		if (i mod 10) =0  then begin
+			Printf.printf "more?\n";
+			if (read_line () ) = "y" then
+				loop (i+1)
+		end
+		else
+			loop (i+1)
 	in
 	try
 	loop 1
 	with DocList.End_of_stream -> ()
-
+	in
+	let rec loop () =
+		Printf.printf "query:\n";
+		let term = read_line () in
+		let _ =
+		try
+		search term
+		with Not_found -> Printf.printf "not found\n"
+		in
+		loop ()
+	in
+	loop ()
 ;;
 
 
@@ -80,7 +97,7 @@ else
 		"build" -> index indexdir  (int_of_string Sys.argv.(3))
 	 |  "dump-index" -> dump_index indexdir
 	 |  "stat" -> print_stat indexdir
-	 |  "search" -> search indexdir
+	 |  "search" -> search indexdir 
 	 |  "dump-temp" -> dump Sys.argv.(3)
 	 | _ -> usage () ; exit 1
 	
