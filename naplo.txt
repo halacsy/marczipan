@@ -248,3 +248,76 @@ token limit = 2000000
 
 a teljes
 1. collection finished: 340.130000 doing 4332330 documents; speed = 12737.276924 documents/sec
+
+
+A hosszas fejlesztgetes utan igy lelassultunk. Ez most constans 32 blok merettel van.
+
+time cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -4000000 | ./test qindex build 2000000
+token limit = 2000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 7.790000 doing 2000016 tokens; speed = 256741.463415 tokens/sec
+  4. flushing started
+  4. flushing finished: 2.030000 doing 2000016 tokens; speed = 985229.556650 tokens/sec
+ 2. run finished: 9.820000 doing 2000016 tokens; speed = 203667.617108 tokens/sec
+ 5. run started
+  6. collecting terminfos started
+  6. collecting terminfos finished: 6.300000 doing 1785951 tokens; speed = 283484.285714 tokens/sec
+  7. flushing started
+  7. flushing finished: 1.730000 doing 1785951 tokens; speed = 1032341.618497 tokens/sec
+ 5. run finished: 8.030000 doing 1785951 tokens; speed = 222409.838107 tokens/sec
+ 8. merging started
+ 8. merging finished: 4.620000
+1. collection finished: 22.470000 doing 213512 documents; speed = 9502.091678 documents/sec
+
+16-os block merettel
+
+cat  /big1/Work/HunPos/Web2/Raw/web2.1.owol.tnttagged | head -4000000 | ./test qindex build 2000000
+token limit = 2000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 7.810000 doing 2000016 tokens; speed = 256083.994878 tokens/sec
+  4. flushing started
+  4. flushing finished: 2.010000 doing 2000016 tokens; speed = 995032.835821 tokens/sec
+ 2. run finished: 9.820000 doing 2000016 tokens; speed = 203667.617108 tokens/sec
+ 5. run started
+  6. collecting terminfos started
+  6. collecting terminfos finished: 6.890000 doing 1785951 tokens; speed = 259209.143687 tokens/sec
+  7. flushing started
+  7. flushing finished: 1.570000 doing 1785951 tokens; speed = 1137548.407643 tokens/sec
+ 5. run finished: 8.460000 doing 1785951 tokens; speed = 211105.319149 tokens/sec
+ 8. merging started
+ 8. merging finished: 4.970000
+1. collection finished: 23.250000 doing 213512 documents; speed = 9183.311828 documents/sec
+
+Ugyanez egy menetben gyorsabb kicsit.
+
+token limit = 20000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 14.750000 doing 3785967 tokens; speed = 256675.728814 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 4.410000 doing 3785967 tokens; speed = 858495.918367 tokens/sec
+ 2. run finished: 19.160000 doing 3785967 tokens; speed = 197597.442589 tokens/sec
+1. collection finished: 19.160000 doing 213512 documents; speed = 11143.632568 documents/sec
+
+
+feltehetoleg innen a hiba:
+Value too large for defined data type [lstat(...)]
+This is a limitation in the OCaml interface to the Unix system calls. (The problem is that the OCaml library uses 32-bit integers to represent file positions. The maximal positive 'int' in OCaml is about 2.1E9. We hope that the OCaml team will someday provide an alternative interface that uses 64-bit integers.
+http://www.cis.upenn.edu/~bcpierce/unison/download/stable/unison-2.9.1/unison-manual.html#rshmeth
+
+tomoritestol baszottul lelassul, de itt valami mas lehet, mert a tomoritesnek a flushingban nem kene lelassulnia, csak a meta_ptr-eket tomoritjuk
+
+token limit = 20000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 30.570000 doing 3785967 tokens; speed = 123845.829244 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 5.100000 doing 3785967 tokens; speed = 742346.470588 tokens/sec
+ 2. run finished: 35.670000 doing 3785967 tokens; speed = 106138.687973 tokens/sec
+1. collection finished: 35.670000 doing 213512 documents; speed = 5985.758340 documents/sec
