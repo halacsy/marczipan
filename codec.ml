@@ -34,6 +34,24 @@ struct
 	let logand = Int64.logand
 end
 
+module  NativeIntCodecType =
+struct
+	type t = int
+	let zero = 0
+	let one = 1
+	
+	let shift_left = (lsl)
+	let shift_right = (lsr)
+	let succ = succ
+	let pred = pred
+	let of_int a = a
+	let to_int a = a
+	let add = (+)
+	let sevenf = 127
+	let logand = (land)
+end
+
+
 module type S =
 sig
 	type t
@@ -83,3 +101,4 @@ end
 
 module Int64 = Make(Int64CodecType)
  
+module NatInt = Make(NativeIntCodecType)

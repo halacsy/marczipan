@@ -90,34 +90,34 @@ let pretty_print term ti =
 (** ha egyszer kiirtad, tobbet nem hasznalhatod!*)
 let write oc  ti =
 	flush_last ti;
-    output_binary_int oc ti.df;
-    output_binary_int oc ti.tf;
-	BlockList.Int.iter (output_binary_int oc) ti.buffer
+    Io.output_vnatint oc ti.df;
+    Io.output_vnatint oc ti.tf;
+	BlockList.Int.iter (Io.output_vnatint oc) ti.buffer
 	
 	
 
 
 let read ic = 
-	let df =  try input_binary_int ic with End_of_file -> raise End_of_terminfos  in
-    let tf = input_binary_int ic in 
+	let df =  try Io.input_vnatint ic with End_of_file -> raise End_of_terminfos  in
+    let tf = Io.input_vnatint ic in 
  	let buffer = BlockList.Int.create () in
 	for i = 1 to (df-1) do
 		(* doc_id *)
-		BlockList.Int.add buffer (input_binary_int ic);
+		BlockList.Int.add buffer (Io.input_vnatint ic);
 		(* freq *)
-		let n = input_binary_int ic in
+		let n = Io.input_vnatint ic in
 		BlockList.Int.add buffer n ;
 		for j = n downto 1 do
-			BlockList.Int.add buffer (input_binary_int ic)
+			BlockList.Int.add buffer (Io.input_vnatint ic)
 		done;
 	done;
 	(* last_doc-ot kulon olvassuk *)
-	let last_doc = input_binary_int ic in
+	let last_doc = Io.input_vnatint ic in
 	(* freq *)
-	let n = input_binary_int ic in
+	let n = Io.input_vnatint ic in
 	let last_positions = ref [] in
 	for j = n downto 1 do
-		last_positions := (input_binary_int ic) :: !last_positions
+		last_positions := (Io.input_vnatint ic) :: !last_positions
 	done;
 	
 	{df = df; tf =tf; last_doc = last_doc; last_positions = !last_positions; buffer = buffer}
@@ -128,18 +128,18 @@ end;;
 type t =  BlockList.Int.t
 
 let write oc t =
-		BlockList.Int.iter (output_binary_int oc) t
+		BlockList.Int.iter (Io.output_vnatint oc) t
 
 let read ic df =
 	let buffer = BlockList.Int.create () in
 	for i = 1 to (df) do
 		(* doc_id *)
-		BlockList.Int.add buffer (input_binary_int ic);
+		BlockList.Int.add buffer (Io.input_vnatint ic);
 		(* freq *)
-		let n = input_binary_int ic in
+		let n = Io.input_vnatint ic in
 		BlockList.Int.add buffer n ;
 		for j = n downto 1 do
-			BlockList.Int.add buffer (input_binary_int ic)
+			BlockList.Int.add buffer (Io.input_vnatint ic)
 		done;
 	done;
 	buffer

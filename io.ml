@@ -85,10 +85,21 @@ let input_string i =
 	s
 	
 let output_vint64 oc i =
+	let i = Int64.succ i in
 	Codec.Int64.output_vbyte (output_byte oc) i
 	
 let input_vint64 ic =
-	Codec.Int64.input_vbyte (fun () -> input_byte ic)
+	let i = Codec.Int64.input_vbyte (fun () -> input_byte ic) in
+	Int64.pred i
+	
+	
+let output_vnatint oc i =
+	let i = succ i in
+	Codec.NatInt.output_vbyte (output_byte oc) i
+	
+let input_vnatint ic =
+	let i = Codec.NatInt.input_vbyte (fun () -> input_byte ic) in
+	pred i
 	
 (*	
 let _ =
