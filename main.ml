@@ -80,7 +80,8 @@ let dump_index index_dir =
 let print_stat index_dir =
 	let ii = InvIndex.open_reader index_dir in
 	Printf.printf "unique terms: %d\n" (InvIndex.types ii);
-	Printf.printf "unique tokens: %d\n" (InvIndex.tokens ii)
+	Printf.printf "unique tokens: %d\n" (InvIndex.tokens ii);
+	InvIndex.print_bucket_stat ii
 ;;
 
 let index indexdir limit =

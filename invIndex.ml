@@ -63,6 +63,11 @@ let open_reader index_dir =
 	reader
 ;;
 
+
+let print_bucket_stat reader =
+	Lex.print_bucket_stat reader.lexicon
+;;
+	
 let types reader = Lex.size reader.lexicon;;
 	
 let tokens reader = reader.tokens;;
