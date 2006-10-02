@@ -13,6 +13,19 @@ let proc_sentence ii sentence =
 	
 ;;
 
+let dump_lexicon index_dir = 
+	let lic =  open_in_bin (index_dir ^ "/" ^ "lexicon") in
+	let rec loop () = 
+		let term = Io.input_string lic in
+		let df   = input_binary_int lic in
+		let tf   = input_binary_int lic in
+		let pos  = Io.input_vint64 lic in
+        Printf.printf "%s\t%d\t%d\n" term df tf;
+		loop ()
+	in
+	try
+	 loop () 
+ 	with End_of_file -> ()
 	
 let search index_dir  =
 	let ii = InvIndex.open_reader index_dir in
@@ -96,6 +109,7 @@ else
 	match Sys.argv.(2) with
 		"build" -> index indexdir  (int_of_string Sys.argv.(3))
 	 |  "dump-index" -> dump_index indexdir
+	 |  "dump-lexicon" ->  dump_lexicon  indexdir
 	 |  "stat" -> print_stat indexdir
 	 |  "search" -> search indexdir 
 	 |  "dump-temp" -> dump Sys.argv.(3)
