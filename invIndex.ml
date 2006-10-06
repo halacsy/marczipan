@@ -2,13 +2,13 @@ module Lex = Mfhash.Make (Hashlex.HashedString)
 
 (** a term lookup table-t kezeli *)
 type writer = {doclist_oc : out_channel;
-			   lexicon_oc : out_channel
+			   lexicon_writer : Lexicon.Writer.t
 }
 
 type term_record = (int * int * Int64.t) 
 
 type reader = {doclist_ic : in_channel;
-			   lexicon      : (term_record) Lex.t;
+			   lexicon      : Lexicon.t;
 			   mutable tokens       : int;
 				stopper     : Timem.t
 }
@@ -16,7 +16,7 @@ type reader = {doclist_ic : in_channel;
 
 let open_writer index_dir =
 	{doclist_oc = open_out_bin (index_dir ^ "/" ^ "postings");
-	lexicon_oc = open_out_bin (index_dir ^ "/" ^ "lexicon");
+	lexicon_writer = Lexicon.Writer.create index_dir;
 	} 
 
 let write_term_entry w term terminfo =
@@ -24,56 +24,34 @@ let write_term_entry w term terminfo =
 	let pos = LargeFile.pos_out w.doclist_oc in
 	let df = DocList.Collector.df terminfo in
 	let tf = DocList.Collector.tf terminfo in
-	Io.output_string w.lexicon_oc term;
-	output_binary_int w.lexicon_oc df;
-	output_binary_int w.lexicon_oc tf;
-	Io.output_vint64 w.lexicon_oc pos	;
-	DocList.write w.doclist_oc (DocList.Collector.doclist terminfo)
+	DocList.write w.doclist_oc (DocList.Collector.doclist terminfo);
+	Lexicon.Writer.add w.lexicon_writer term df tf pos;
+	
 ;;
 
 let close_writer w =
 	close_out w.doclist_oc;
-	close_out w.lexicon_oc
+	Lexicon.Writer.close w.lexicon_writer;
 ;;	
 
 
 
 let open_reader index_dir = 
 	let reader = {doclist_ic = open_in_bin (index_dir ^ "/" ^ "postings");
-				  lexicon = Lex.create 10 ;
+				  lexicon = Lexicon.init index_dir ;
 				   tokens  = 0;
 				  stopper = Timem.init ();
 	} in
-	Timem.start reader.stopper "loading lexicon";
-	let lic =  open_in_bin (index_dir ^ "/" ^ "lexicon") in
-	let rec loop () = 
-		let term = Io.input_string lic in
-		let df   = input_binary_int lic in
-		let tf   = input_binary_int lic in
-		let pos  = Io.input_vint64 lic in
-		Lex.update reader.lexicon (df, tf, pos) term (fun x -> x);
-		reader.tokens <- reader.tokens + tf;
-		loop ()
-	in
-	try
-	 loop () 
- 	with End_of_file -> 
-
-	Timem.finish reader.stopper;
 	reader
 ;;
 
 
-let print_bucket_stat reader =
-	Lex.print_bucket_stat reader.lexicon
-;;
 	
-let types reader = Lex.size reader.lexicon;;
 	
 let tokens reader = reader.tokens;;
 	
 let term_info reader term =
-	let (df, tf, pos) = Lex.find reader.lexicon term in
+	let (df, tf, pos) = Lexicon.find reader.lexicon term in
 	let open_stream () =
 		Timem.start reader.stopper "loading postings";
 		LargeFile.seek_in reader.doclist_ic  pos;
@@ -83,7 +61,7 @@ let term_info reader term =
 	in
 	(df, tf, open_stream)
 	
-let pretty_print reader =
+(*let pretty_print reader =
 	let aux term (df, tf, pos) =
 		Printf.printf "%s -> " term;
 	    Printf.printf "df = %d tf = %d\n " df tf;
@@ -92,3 +70,4 @@ let pretty_print reader =
 		DocList.pretty_print doclist ; 
 	in
 	Lex.sorted_iter  aux reader.lexicon
+*)

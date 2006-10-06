@@ -73,16 +73,6 @@ let print_sentence sentence =
 		List.iter (print_pair) sentence
 ;;
 
-let output_string o s = 
-	let l = String.length s in
-	output_binary_int o l;
-	output o s 0 l
-	
-let input_string i =
-	let l = input_binary_int i in
-	let s = String.create l in
-	really_input i s 0 l ;
-	s
 	
 let output_vint64 oc i =
 	let i = Int64.succ i in
@@ -101,6 +91,17 @@ let input_vnatint ic =
 	let i = Codec.NatInt.input_vbyte (fun () -> input_byte ic) in
 	pred i
 	
+
+let output_string o s = 
+	let l = String.length s in
+	output_vnatint o l;
+	output o s 0 l
+
+let input_string i =
+	let l = input_vnatint i in
+	let s = String.create l in
+	really_input i s 0 l ;
+	s
 (*	
 let _ =
 	let o = open_out_bin "/tmp/vacak" in

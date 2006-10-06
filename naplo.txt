@@ -304,20 +304,35 @@ token limit = 20000000
  2. run finished: 19.160000 doing 3785967 tokens; speed = 197597.442589 tokens/sec
 1. collection finished: 19.160000 doing 213512 documents; speed = 11143.632568 documents/sec
 
+3416192 2006-10-01 11:58 docindex
 
 feltehetoleg innen a hiba:
 Value too large for defined data type [lstat(...)]
 This is a limitation in the OCaml interface to the Unix system calls. (The problem is that the OCaml library uses 32-bit integers to represent file positions. The maximal positive 'int' in OCaml is about 2.1E9. We hope that the OCaml team will someday provide an alternative interface that uses 64-bit integers.
 http://www.cis.upenn.edu/~bcpierce/unison/download/stable/unison-2.9.1/unison-manual.html#rshmeth
 
-tomoritestol baszottul lelassul, de itt valami mas lehet, mert a tomoritesnek a flushingban nem kene lelassulnia, csak a meta_ptr-eket tomoritjuk
+megoldva a kerdes. Int64 a pozico, es tomoritve taroljuk. A DocMeta fajl lett 1 G-nel nagyon
 
-token limit = 20000000
-1. collection started
- 2. run started
-  3. collecting terminfos started
-  3. collecting terminfos finished: 30.570000 doing 3785967 tokens; speed = 123845.829244 tokens/sec
-  4. writing terminfos started
-  4. writing terminfos finished: 5.100000 doing 3785967 tokens; speed = 742346.470588 tokens/sec
- 2. run finished: 35.670000 doing 3785967 tokens; speed = 106138.687973 tokens/sec
-1. collection finished: 35.670000 doing 213512 documents; speed = 5985.758340 documents/sec
+3400681 2006-10-01 12:00 qindex/docindex
+
+
+na most meg nem lehet betolteni a lexikont. szamoljunk kicsit
+7 millio token van
+
+mennyi memoriat fogyasztunk?
+s = string overhed
+7.179.624 * s
+7.179.624 * 12 (atlag string hossz) 86.283.080
+7179624 * 16 (pointer szamok)
+7179624 * 4 (tuple)
+7179624 * k (Con overhed)
+2000000 * k (Con Overhead, mert sok feje van)
+
+(20 + 12 + k +s ) 7.0 
+
+lexiconhoz epitunk egy indexet
+visszaigazoljuk 40911
+politikáját 32726
+kéri 24548
+gyár 16367
+belépőt 8185
