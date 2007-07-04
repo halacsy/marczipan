@@ -93,22 +93,22 @@ let input_vnatint ic =
 	
 
 let output_string o s = 
-	let l = String.length s in
-	output_vnatint o l;
+	let l = (String.length s)  in
+	output_vnatint o (l + 1);
 	output o s 0 l
 
 let input_string i =
-	let l = input_vnatint i in
+	let l = (input_vnatint i) - 1  in
 	let s = String.create l in
 	really_input i s 0 l ;
 	s
 (*	
 let _ =
 	let o = open_out_bin "/tmp/vacak" in
-	write_string o "hello, world";
-	write_string o "szia vilag";
+	output_string o "hello, world";
+	output_string o "szia vilag";
 	 close_out o;
 	let i = open_in_bin "/tmp/vacak" in
-	Printf.printf "%s\n%s\n" (read_string i) (read_string i);
+	Printf.printf "%s\n%s\n" (input_string i) (input_string i);
 	flush_all;
 *)

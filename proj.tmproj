@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>currentDocument</key>
-	<string>termIndex.ml</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -382,22 +380,12 @@
 	</dict>
 	<key>openDocuments</key>
 	<array>
-		<string>hashlex.ml</string>
-		<string>hashlexhas.ml</string>
-		<string>varray.ml</string>
-		<string>indexer.ml</string>
-		<string>docinfo.ml</string>
 		<string>timem.ml</string>
 		<string>invIndex.ml</string>
 		<string>test.ml</string>
 		<string>lexicon.mli</string>
-		<string>bst.ml</string>
 		<string>test.ml</string>
-		<string>bursttrie.mli</string>
-		<string>btree.ml</string>
-		<string>bursttrie.ml</string>
 		<string>Makefile</string>
-		<string>termIndex.ml</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>

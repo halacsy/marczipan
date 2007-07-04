@@ -29,6 +29,7 @@ let dump_lexicon index_dir =
 	
 let search index_dir  =
 	let ii = InvIndex.open_reader index_dir in
+	  Printf.printf "ii opened";
 (*	InvIndex.pretty_print ii;
 *)	let fi = ForIndex.open_reader index_dir in
 	let t = Timem.init () in
