@@ -93,6 +93,28 @@ let index indexdir limit =
  *)
 ()
 
+let index_mh indexdir limit =
+  Printf.eprintf "token limit = %d\n" limit;
+	let ii = Inverter.start_collection indexdir limit in
+  let proc_doc id content =
+  (*  Printf.printf "adding %s\n" id;
+    *)let meta = DocMeta.empty () in
+    let _ = DocMeta.add_string meta 0 id in
+  
+    let doc_handler = Inverter.start_doc ii meta in
+    let i = ref 0 in
+    let aux (Tokenizer.Token (s, _, _)) =
+      Inverter.add_term ii doc_handler s  !i;
+      incr i;
+    in
+    Tokenizer.iterate aux (Lexing.from_string content);
+  	Inverter.end_doc  ii doc_handler
+  in  
+  Mh_parser.parse stdin proc_doc;  
+	Inverter.end_collection ii
+	;;
+
+  
 let dump tempfile = 
 	Merger.pretty_print_stream tempfile
 ;;
@@ -108,6 +130,8 @@ else
 	let indexdir = Sys.argv.(1) in
 	match Sys.argv.(2) with
 		"build" -> index indexdir  (int_of_string Sys.argv.(3))
+		|"indexmh" -> index_mh indexdir  (int_of_string Sys.argv.(3))
+    
 	 |  "dump-index" -> dump_index indexdir
 	 |  "dump-lexicon" ->  dump_lexicon  indexdir
 	 |  "stat" -> print_stat indexdir

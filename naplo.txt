@@ -336,3 +336,115 @@ politikáját 32726
 kéri 24548
 gyár 16367
 belépőt 8185
+
+
+
+2007-07-08 
+Lucene keresés
+
+IndexSearcher csinálja a munkát. Searcher az apa, az hozza létre a search hívására a Hits-et, ami a hívótól, itt most IndexSearcher kéri le elsőször a 100 legjobb dokumentumot. A Hits-et kapja vissza az alkalmazás, abban lehet menni a találatok között. Ha valaki a 101-et kéri, akkor újra keresünk.
+Ezt még majd meg kell nézni miért jó.
+
+A Hits getMoreDocs()-ja hívódik, ha nincs elég dokumentum a Hits-ben. Ez lekér n darad találatot és beteszi egy tömbbe. A találatok relevanciáját normálja, hogy az elsőé 1-nél ne legyen nagyobb.
+
+Hát szerintem semmi durva optimalizációt nem csinál. A Query át tudja magát alakítani Weight-é, amihez tartozik egy scorer. Például a TermScorer csinálja, ami a tfidf világban a dolga. A Similiraty meg a Scorer alapján számolja a query-doc hasonlóságot. Ha jól látom, akkor a TermDocs-ot olvasva tényleg végigmegy mindenen.
+
+TermScorer. Egy term súlyát adja meg a dokumentumokban. Megkapja a TermDocs-ot, Similarity-t. Végigmegy a dokumentumokon, kiolvassa 32-esevél a dokumentumokat és a tf értéket. Van egy cache-e scoreCache, amiben a valódi súlyokat cachelei 1..32 közötti tf értékekhez. Mert  sqrt(tf) értéket számol a defaultSimilarity és azt még szorozza a Term query-ben felvett súlyával. Megspórol egy gyökvonást és egy szorzást, ha a dokban a term 1..32-szor fordul elo.
+
+A BooleanScorer2 a DisjunctionScrorer meg ConjuctionScorer-t használja. Utobbi az AND-nek felel meg. Egy láncolt listában tárolja a Scorereket úgy, hogy mindig előrébb legyen, aminek kisebb a köv docidje. Ne feledd egy Scorer is tudja a next-et, skipTo-t, mint a termDocs. Ezután 
+
+while (more && first().doc() < last().doc()) { // find doc w/ all clauses
+  more = first().skipTo(last().doc());      // skip first upto last
+  scorers.addLast(scorers.removeFirst());   // move first to last
+}
+
+azaz minden Scorer-t addig mozgat, amíg ugyanarra a dokra nem állnak.
+
+Érdekes a ReqExclScorer, ami egy exclude es requried keresés keveréke. Értelemszerűen a next()-ben van az exclusion logika. Addig megy a req scrorer, amíg el nem ér egy az exclude.next által visszadott doc-ot. Azt átugorja.
+
+
+. Next-re addig megy
+
+
+A memoria beallitasokra igen erzekeny a kicsike
+ 3. collecting terminfos finished: 48.830766 doing 12618531 tokens; speed = 258413.537891 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 14.419260 doing 12618531 tokens; speed = 875116.406806 tokens/sec
+ 2. run finished: 63.250191 doing 12618531 tokens; speed = 199501.863955 tokens/sec
+1. collection finished: 63.253209 doing 49530 documents; speed = 783.043276 documents/sec
+
+
+De 1 perc alatt leindexeli a magyar hirlapot!!
+Most osszemerjuk a lemurral. Igaz, nem teljesen tudjuk, hogy az milyen indexet epit, nem tudtunk belenezni
+
+Lemur
+Macintosh-2:~/work/lemur_test hp$ time BuildIndex build_param mh/mh2002*
+
+real    1m15.140s
+user    1m6.910s
+sys     0m6.144s
+
+Nagyon ugy nez ki, hogy megverjuk a lemur project-et. Kicsivel, de szep az ocamltol es tolem
+
+Macintosh-2:~/work/marcipan hp$ time cat ../lemur_test/mh/mh2002*.xml | iconv -f UTF-8 -t ISO-8859-2 -c  | ./main.native mhindex indexmh 100000000
+token limit = 100000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 47.530842 doing 12618531 tokens; speed = 265480.906061 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 14.394679 doing 12618531 tokens; speed = 876610.794864 tokens/sec
+ 2. run finished: 61.925738 doing 12618531 tokens; speed = 203768.762514 tokens/sec
+1. collection finished: 61.928842 doing 49530 documents; speed = 799.788893 documents/sec
+
+real    1m3.114s
+user    1m3.134s
+sys     0m4.877s
+
+Lemur keresésről. Először is van az Index.hpp, ami az index interfésze. Ebből most nekünk a  
+virtual DocInfoList *docInfoList(TERMID_T termID) const=0;
+fgv érdekes, ami egy term dokumentumait adja meg. DocInfo docid, termCount-ből áll. Az InvDocList 
+(kis következetlenség, hogy nem InvDocInfoList ) az implementáció, amit használunk indexeléskor is. 
+Egy tömbben tárolja a docid, frekvencia értékeket, ha elfogy a hely, akkor duplázza a tömböt. Binárisan
+tömörítve írja ki, beolvasáskor kitömörít. Csak iterálni tudunk rajta, nincs skipTo, mint a 
+lucene-ben.
+
+RetrievalMethod scoreCollection metodusa kapja a query-t és (int,double) vectort (IndexedRealVector) ad vissza. TextRetrievalMethod alosztály kezele a TextQueryket, amit string, double párok listája. Hihetetlen ez a C++. Ennek még egy alosztálya a ArrayQueryRep, ami egy tömbben tárolja a termeket. Ez most nem érdekes, nálunk azért ez csak egy sima lista lesz.
+
+TextRetrievalMethod a következőt csinálja: van egy nagy tömbje, ScoreAccumulator, ebbe gyűjti majd a dokumentumok scoreját. Ez igazából két tömb: egy int status (be van-e állítva a score) és maga a double score. Namármost a TextQueryRetMethod:scoreInvertedIndex két lépében számol. Először
+
+minden termre a queryben, keresd ki a docInfoList-et
+menj végig minden dokumentumot és
+scoreFunc()->matchedTermWeight -t hivd meg és a dokumentum akkumulátorához add hozzá a mostani term súlyát.
+
+ezután menj végig az összes dokumentumon újra, és ha volt hozzá score, akkor
+scoreFunc()->adjustedScore -t számolj, ami megkapja a teljes querzt, a docot és az eddigi súlyt.
+
+De ket dolog van. DocModel és a scoreFunc, valahogy e kettőben van elrejtve a valódi ranking. Van a SimpleKLDocModel aminek gyereke a JelinekMercerDocModel. Előbbiben nem teljesen értem a termWeight metódust
+/// term weighting function, weight(w) = p_seen(w)/p_unseen(w)
+
+Pedig a JelinekMercerDocModel pont azt számolja, amit vártunk, persze tud interpolálni és backoffolni is. Na jó, én többet nem nézem ezt a C++ kódot. A SimpleKLRetMethodban van egy SimpleKLScoreFunc osztály. Az csinálja a számolást.
+
+Oke, engem már csak a docLength kiolvasás érdekel, aztán ennél áramvonalasabb megoldás jön.Ezta SimpleKLRetMethod kéri le az indextől. InvIndex dtlookup -jánál kell folytatni. Abban van benne a doc hossza.
+
+csákesz
+
+Elmentünk sörözni. Most jöttünk vissza. Ez a dtlookup egy dokumentumszámnyi hosszú tömb, amibe betölti a docIdhez a hosszt, a termjeire mutató pointert stb. Semmi különös nincs benne. Persze nem értem, hogy mi van, ha nem fér a memóriába a docNum x legalább 8 byte. Na mindegy. Szóval ez nálunk a forwardIndex volt. Itt InvFPTermList -eket írunk ki minden dokhoz, ami a termjei gyakorisággal, szóval bag of words. Ezeknek van egy index fájlja: ez megy a dtlookup-ba. A trükk az, hogy amíg nem kell a dokumentum termjeihez nyúlni, addig a hossz a memóriában lesz. A hossz mellett ott van még, hogy melyik fájl, melyik pozicióján kezdődik a doc forwardIndexe (gondolom itt figyelnek arra, hogy egy fájl nem lehet nagyobb egy bizonyos méretnél)
+
+Ja, itt van az InvPushIndex.cpp-ben: 
+ if (offset+(3*sizeof(lemur::api::LOC_T))+(tls*sizeof(LocatedTerm)) > maxfile) {
+  writetlist.close();
+  std::stringstream nameStr;
+  nameStr << name << DTINDEX << dtfiles.size();
+  string docfname = nameStr.str();
+  dtfiles.push_back(docfname);
+  writetlist.open(docfname.c_str(), ios::binary | ios::out);
+  offset = 0;
+}
+
+
+
+
+
+
+
