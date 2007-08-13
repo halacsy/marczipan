@@ -12,13 +12,14 @@
  address = {Cambridge, MA, USA},
  }
 *)
-(* *)
-(*module CMap = Map.Make(Char) *)
+
 let id_counter = ref (-1)
 
 type transition = (char * state) and
 state =
-  { id : int; mutable is_final : bool; mutable edges : transition list
+  { id : int; 
+    mutable is_final : bool; 
+    mutable edges : transition list
   }
 
 	
@@ -29,11 +30,38 @@ let equal_transition (c1, t1) (c2, t2) =
 let hash_fun_trans (c1, t1) =
 	(Hashtbl.hash c1) * 31 + Hashtbl.hash t1.id;;
 
-let hash_fun state =
+let hash_fun_state state =
 	let sum = if state.is_final then 1 else 0 in
-	List.fold_left (fun  sum trans -> sum + sum * 31 + (hash_fun_trans trans)) sum state.edges
+	let add_trans_hash sum trans = 
+	  sum + sum * 31 + (hash_fun_trans trans)
+	in 
+	List.fold_left (add_trans_hash) sum state.edges
 ;;
 
+(* ket allapot egyenlo, ha ugyanazt a nyelvet fogadjak el, vagyis a kimeno*)
+(* eleknel eleg csak a fizikai egyenloseget vizsgalni *)
+
+let equal_state s1 s2 =
+	if s1.is_final <> s2.is_final then false else
+	if List.length s1.edges <> List.length s2.edges then false else
+	let rec aux l1 l2 = match (l1, l2) with
+		| [], [] -> true
+		| h1 :: t1, h2 :: t2 -> 
+		  
+		  if equal_transition h1 h2 then aux t1 t2 
+		  else false
+		
+		| _ -> false
+	in
+	aux s1.edges s2.edges
+;;
+
+
+module Register = Mfhash.Make(
+  struct type t = state 
+  let equal s1 s2 = equal_state s1 s2 
+  let hash = hash_fun_state end)
+    
 let empty () =
   (incr id_counter; {  id = !id_counter; is_final = false; edges = []; })
 
@@ -71,25 +99,7 @@ let has_children n = (List.length n.edges) > 0
 let replace_last_node n q =
   match n.edges with | (ch, nh) :: t -> n.edges <- (ch, q) :: t | _ -> ()
 
-(* ket allapot egyenlo, ha ugyanazt a nyelvet fogadjak el, vagyis a kimeno*)
-(* eleknel eleg csak a fizikai egyenloseget vizsgalni *)
 
-let equal_state s1 s2 =
-	if s1.is_final <> s2.is_final then false else
-	if List.length s1.edges <> List.length s2.edges then false else
-	let rec aux l1 l2 = match (l1, l2) with
-		| [], [] -> true
-		| h1 :: t1, h2 :: t2 -> if equal_transition h1 h2 then aux t1 t2 else false
-		| _ -> false
-	in
-	aux s1.edges s2.edges
-;;
-
-
-module Register = Mfhash.Make(
-  struct type t = state 
-  let equal s1 s2 = equal_state s1 s2 
-  let hash = hash_fun end)
 
 type builder = { root : state; mutable register : state Register.t }
 
@@ -143,3 +153,58 @@ let add_string builder s =
              (let new_child = add_child last_node s.[i] (empty ())
               in aux new_child (i + 1)) in
          let last_node = aux last_node i in last_node.is_final <- true)
+
+
+let end_of_words builder  = 
+   replace_or_register  builder builder.root;
+   builder.root
+;;
+
+module IntHash = Mfhash.Int
+
+(* prints for graphviz *)
+let print_graphviz root =
+	Printf.printf("digraph finite_state_machine {\n");
+	Printf.printf("rankdir=LR;\n");
+ 
+	let printed = IntHash.empty() in
+	let rec print_child_nodes n =
+    
+    let print_edge (c, n2) =
+			Printf.printf "%d -> %d [ label = \" %c \"];\n" n.id n2.id c;
+			print_child_nodes n2;
+		in
+		let print_node () =
+		  if n.is_final then
+		    Printf.printf "%d [shape = doublecircle] ;\n" n.id;
+		    
+		  List.iter print_edge n.edges;
+		  n.id
+		in
+		(* mindent csak egyszer irjunk ki, meg ha tobb ut is van hozza *)
+    let _ =
+    IntHash.update (fun () -> print_node ())
+                   (fun id -> id)
+                    printed n.id
+    in ()              
+	
+	in
+	print_child_nodes root;
+	Printf.printf ";\nnode [shape = circle];";
+	Printf.printf "}\n"
+;;
+
+
+
+let dump root =
+	let print_acc acc =
+		let acc = List.rev acc in
+		List.iter print_char acc;
+		print_newline ()
+	in
+	let rec aux acc node =
+		if node.is_final then print_acc acc;
+		List.iter (fun (c, n) -> aux (c :: acc) n) node.edges
+	in
+	aux  [] root
+
