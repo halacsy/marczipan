@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE magyar SYSTEM "magyar_clef.dtd">
 
-<magyar id od>
+<magyar>
 <DOC>
 <DOCNO>MH-20020226-001</DOCNO>
 <DOCID>MH-20020226-001</DOCID>

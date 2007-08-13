@@ -103,7 +103,7 @@ let index_mh indexdir limit =
   
     let doc_handler = Inverter.start_doc ii meta in
     let i = ref 0 in
-    let aux (Tokenizer.Token (s, _, _)) =
+    let aux (Tokenizer.Token (s, _, _, _)) =
       Inverter.add_term ii doc_handler s  !i;
       incr i;
     in

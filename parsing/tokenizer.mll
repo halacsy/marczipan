@@ -99,10 +99,13 @@ let dash = "&ndash;"|"&mdash;"
 let spunct = ['.' '!' '?' ]
 let wpunct = ['-' '_' '/' ';']
 let whitespace = [' ' '\t']
+  
 let newline = ['\n']
 let html_entity = "&" digit digit digit ";"
 let wordchars = (latin1 | letters | digit | dash | html_entity)*
 
+let token_chars = [^ '.' ',' ':' '/' ';' '(' ')' '?' '!' '\"' ' ' '\t' '\r' '\n']
+  
 let top_level_domains = ".hu"|".HU"|".org"|".ORG"|".com"|".COM"|".net"|".NET"|".info"|".INFO"|".edu"|".EDU"|".gov"|".GOV"|".mil"|".MIL"
 
 
@@ -110,6 +113,7 @@ let host_name = (letters | digit)+ ('.' (letters | digit)+ ('.' (letters | digit
 let email = letters+ '@' host_name
 
 rule tokenize = parse
+   
   | email as s {tok s "email" lexbuf;} 
   | host_name as s {tok s "host" lexbuf;}
   | digit+ as s {tok s "num" lexbuf;} 
@@ -133,8 +137,8 @@ let  iterate f lexbuf =
     f (tokenize lexbuf)
   done;
 	with End_of_file -> ()	
-(*
+
 let _ =
 			iterate (fun (Token(s, typ, _, _)) -> print_string typ;print_endline s;) (Lexing.from_channel stdin)
-*)
+
 }

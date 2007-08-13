@@ -18,11 +18,7 @@ rule tokenize = parse
   | "<?xml version=\"" (version as version) "\" encoding=\"" (encoding as encoding)? "\"?>"
     { StartDoc(version, encoding) }
   | "<!DOCTYPE" no_duck+ ">" {tokenize lexbuf;}
-  | '<' (tagname as tag)  (space (attrname  as attrs) )+ '>' {
-        let _ = match attrs with
-          Some(s) -> Printf.printf "\nattrs\n%s\n" s;
-          |None -> ()
-        in
+  | '<' (tagname as tag)   '>' {
         StartE(tag, Lexing.lexeme_start lexbuf, Lexing.lexeme_end lexbuf);}
   | lt per (tagname as tag) gt { EndE(tag, Lexing.lexeme_start lexbuf, Lexing.lexeme_end lexbuf); } 
   | no_duck+ as s     { Data(s, Lexing.lexeme_start lexbuf, Lexing.lexeme_end lexbuf);}
