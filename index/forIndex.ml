@@ -1,11 +1,12 @@
-module Lex = Mfhash.Make (Hashlex.HashedString)
+module Lex = Mfhash.String
+
 module HashedInt = struct
 	type t = int
 	let hash w s = (Hashtbl.hash w) mod s
 	let equal (s1:int) (s2:int) = (s1 = s2) 
 	let compare (s1:int) (s2:int) = compare s1 s2
 end ;;
-module IntHashTable = Mfhash.Make (HashedInt)
+module IntHashTable = Mfhash.Int
 
 let default_type_freqs_size = 30
 
@@ -37,7 +38,7 @@ let start_doc fiw doc_id meta =
 
 
 let add_term fiw di term pos =  
-	Lex.update di.type_freqs 0 term (succ) ;
+	let _ = Lex.update (fun () -> 1) succ di.type_freqs  term in
     di.tokens <- (succ di.tokens)
 ;;
 
@@ -85,8 +86,8 @@ let read_docstats index_dir lex =
 		let len   =  input_binary_int ic in
 		let types = input_binary_int ic in
 		let meta_start = Int64.pred (Io.input_vint64 ic) in
-		let info = {types = types; len = len; ptr_meta = meta_start; ptr_terms = 0} in
-		IntHashTable.update lex info docid  (fun x -> x);
+	  let info = ({types = types; len = len; ptr_meta = meta_start; ptr_terms = 0}) in
+		IntHashTable.add_or_replace lex docid info;
 		loop ()
 	in
 	try

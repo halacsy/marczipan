@@ -1,4 +1,11 @@
- 
+module TermLexicon = FileBasedLexicon.Make
+
+(*module TermLexicon = FsaLexicon.Make
+*)
+module InvIndex = InvIndex.Make(TermLexicon)
+
+module Inverter = Inverter.Make(InvIndex.Writer)
+
 let proc_sentence ii sentence =
 		let st = String.concat " " (List.map (fun (w,_) -> w) sentence) in
 		let meta = DocMeta.empty () in
@@ -120,7 +127,7 @@ let dump tempfile =
 ;;
 
 let usage () = 
-	Printf.eprintf "usage : %s index-dir build tok | search | dump-temp | dump-index | stat \n" Sys.argv.(0)
+	Printf.eprintf "usage : %s index-dir build tok-limit | indexmh tok-limit | search | dump-temp | dump-index | stat \n" Sys.argv.(0)
 ;;
 	
 let _ =	

@@ -1,22 +1,47 @@
-module Lex = Mfhash.Make (Hashlex.HashedString)
+module Lex = Mfhash.String
+module type Lexicon  = sig
+		type t
+    val init : string -> t
+    val find : t -> string -> int * int * int64
 
+    module Writer :
+    sig
+      type t
+      val create : string -> t
+      val close : t -> unit
+      val add : t -> string -> int -> int -> int64 -> unit
+    end
+end
+		
+module type Writer = sig
+	type t
+	val create : string -> t
+	val close : t -> unit
+	val write_term_entry : t -> string -> DocList.Collector.t -> unit
+end
+  		
+(* TODO, S-t bevenni*)
+module type S = 
+	  functor (TermLexicon : Lexicon) ->
+    sig
+      module Writer : Writer
+end 
+
+
+module Make (TermLexicon : Lexicon )  = struct 
+	module Writer : Writer = struct
 (** a term lookup table-t kezeli *)
-type writer = {doclist_oc : out_channel;
-			   lexicon_writer : Lexicon.Writer.t
-}
-
-type term_record = (int * int * Int64.t) 
-
-type reader = {doclist_ic : in_channel;
-			   lexicon      : Lexicon.t;
-			   mutable tokens       : int;
-				stopper     : Timem.t
+type t = 
+{
+	doclist_oc : out_channel;
+	lexicon_writer : TermLexicon.Writer.t
 }
 
 
-let open_writer index_dir =
-	{doclist_oc = open_out_bin (index_dir ^ "/" ^ "postings");
-	lexicon_writer = Lexicon.Writer.create index_dir;
+let create index_dir =
+	{
+		doclist_oc = open_out_bin (index_dir ^ "/" ^ "postings");
+	  lexicon_writer = TermLexicon.Writer.create index_dir;
 	} 
 
 let write_term_entry w term terminfo =
@@ -25,20 +50,33 @@ let write_term_entry w term terminfo =
 	let df = DocList.Collector.df terminfo in
 	let tf = DocList.Collector.tf terminfo in
 	DocList.write w.doclist_oc (DocList.Collector.doclist terminfo);
-	Lexicon.Writer.add w.lexicon_writer term df tf pos;
+	TermLexicon.Writer.add w.lexicon_writer term df tf pos;
 	
 ;;
 
-let close_writer w =
+let close w =
 	close_out w.doclist_oc;
-	Lexicon.Writer.close w.lexicon_writer;
+	TermLexicon.Writer.close w.lexicon_writer;
 ;;	
+
+
+end
+
+type term_record = (int * int * Int64.t) 
+
+type reader = 
+{
+	doclist_ic : in_channel;
+	lexicon      : TermLexicon.t;
+	mutable tokens       : int;
+	stopper     : Timem.t
+}
 
 
 
 let open_reader index_dir = 
 	let reader = {doclist_ic = open_in_bin (index_dir ^ "/" ^ "postings");
-				  lexicon = Lexicon.init index_dir ;
+				  lexicon = TermLexicon.init index_dir ;
 				   tokens  = 0;
 				  stopper = Timem.init ();
 	} in
@@ -51,7 +89,7 @@ let open_reader index_dir =
 let tokens reader = reader.tokens;;
 	
 let term_info reader term =
-	let (df, tf, pos) = Lexicon.find reader.lexicon term in
+	let (df, tf, pos) = TermLexicon.find reader.lexicon term in
 	let open_stream () =
 		Timem.start reader.stopper "loading postings";
 		LargeFile.seek_in reader.doclist_ic  pos;
@@ -71,3 +109,5 @@ let term_info reader term =
 	in
 	Lex.sorted_iter  aux reader.lexicon
 *)
+
+end

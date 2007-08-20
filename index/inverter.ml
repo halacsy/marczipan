@@ -1,13 +1,15 @@
-module Lex = Mfhash.Make (Hashlex.HashedString)
+module Lex = Mfhash.String
 
+module Make(InvIndexWriter : InvIndex.Writer ) = struct
+	
 type inverter = {mutable tokens 		: int;
 		  lexicon        		: (DocList.Collector.t) Lex.t;
 		  mutable	doc_count 	: int ;				(* number of documents *)
 		
 		  merger                : Merger.t; 
 		  max_tokens_in_memory : int;
-		  stopper        : Timem.t;
-		  index_writer   : InvIndex.writer;
+		   stopper        : Timem.t;
+		  index_writer   : InvIndexWriter.t;
 		  dir            : string;
 		  for_index		 : ForIndex.forIndex_writer
 		}
@@ -31,7 +33,7 @@ let start_collection dir max_tokens =
 	 max_tokens_in_memory = max_tokens; 
 	 stopper              = stopper;
 	 dir                  = dir ;
-	 index_writer         = InvIndex.open_writer dir;
+	 index_writer         = InvIndexWriter.create dir;
      for_index            = ForIndex.start_collection dir
     }
 
@@ -46,12 +48,14 @@ let start_doc ii meta  =
 ;;
 
 let add_term inverter doc_handler term pos =	
-		let aux ti =
+		let refresh ti =
+			
 			DocList.Collector.occurrence ti doc_handler.cur_doc pos; 
 			ti
 		in
-		Lex.update inverter.lexicon (DocList.Collector.empty ()) term (aux) ;
-	    inverter.tokens <- succ inverter.tokens;
+		let _ = 
+		Lex.update  (fun () -> DocList.Collector.create doc_handler.cur_doc pos) (refresh) inverter.lexicon term in
+	  inverter.tokens <- succ inverter.tokens;
 	 	ForIndex.add_term inverter.for_index doc_handler.for_index_doc_handler term pos
 ;;
 
@@ -63,7 +67,7 @@ let flush_memory ii =
 	if ii.tokens > 0 then
 	begin
 	Timem.start ii.stopper "flushing";	
-		let iterator f = Lex.sorted_iter f ii.lexicon in
+		let iterator f = Lex.sorted_iter compare f ii.lexicon in
 		let _ = Merger.flush ii.merger iterator in
 		let t = ii.tokens in
 		ii.tokens <- 0;
@@ -97,18 +101,18 @@ let end_collection ii =
 		flush_memory ii;
 		Timem.finish_speed ii.stopper t "tokens";
 		Timem.start ii.stopper "merging";
-		Merger.merge ii.index_writer ii.merger;
+		Merger.merge (InvIndexWriter.write_term_entry ii.index_writer) ii.merger;
 		Timem.finish ii.stopper
 	end
 	else begin
 		let  t= ii.tokens in
 		Timem.finish_speed ii.stopper t "tokens";
 		Timem.start ii.stopper "writing terminfos";	
-		Lex.sorted_iter (InvIndex.write_term_entry ii.index_writer) ii.lexicon;
+		Lex.sorted_iter compare (InvIndexWriter.write_term_entry ii.index_writer) ii.lexicon;
 		Timem.finish_speed ii.stopper t "tokens";
 		Timem.finish_speed ii.stopper t "tokens"
 	end;
-	InvIndex.close_writer ii.index_writer;
+	InvIndexWriter.close ii.index_writer;
 	Timem.finish_speed ii.stopper ii.doc_count "documents"
 ;;
-		
+	end

@@ -137,8 +137,8 @@ let  iterate f lexbuf =
     f (tokenize lexbuf)
   done;
 	with End_of_file -> ()	
-
+(*
 let _ =
 			iterate (fun (Token(s, typ, _, _)) -> print_string typ;print_endline s;) (Lexing.from_channel stdin)
-
+*)
 }

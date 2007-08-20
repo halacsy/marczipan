@@ -444,7 +444,55 @@ Ja, itt van az InvPushIndex.cpp-ben:
 
 
 
+2007. aug 19.
+
+most elkezdetem az fsa lexikont behegeszteni. Majd kiderul, h a sebesseg hogyan valtozik
 
 
+Macintosh-2:~/work/marcipan/trunk hp$  cat ~/work/lemur_test/mh/mh2002*.xml | iconv -f UTF-8 -t ISO-8859-2 -c   | ocamlbuild main.native -- temp/index indexmh 100000000
+Finished, 59 targets (59 cached) in 00:00:00.
+token limit = 100000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 52.549057 doing 12614322 tokens; speed = 240048.494115 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 15.396040 doing 12614322 tokens; speed = 819322.501111 tokens/sec
+ 2. run finished: 67.945252 doing 12614322 tokens; speed = 185654.208774 tokens/sec
+1. collection finished: 67.948397 doing 49530 documents; speed = 728.935519 documents/sec
+
+
+Szép eredményt értünk el. FSA lexiconnal nem sokkal lassabb. Még nem ellenőriztem le, hogy jó-e a lexikon. Jó kis unit testet lehet ra irni. 67 secrol felment 72-re, viszont a lexikon fajl meret meg lement.
+
+Macintosh-2:~/work/marcipan/trunk hp$  cat ~/work/lemur_test/mh/mh2002*.xml | iconv -f UTF-8 -t ISO-8859-2 -c   | ocamlbuild main.native -- temp/index indexmh 100000000
+Finished, 68 targets (68 cached) in 00:00:00.
+token limit = 100000000
+1. collection started
+ 2. run started
+  3. collecting terminfos started
+  3. collecting terminfos finished: 50.833621 doing 12614322 tokens; speed = 248149.192441 tokens/sec
+  4. writing terminfos started
+  4. writing terminfos finished: 17.565688 doing 12614322 tokens; speed = 718122.854055 tokens/sec
+ 2. run finished: 68.399495 doing 12614322 tokens; speed = 184421.273871 tokens/sec
+1. dumping lexicon started
+ 2. compacting fsa started
+ 2. compacting fsa finished: 2.900817
+ 3. outputting terminfo arrays started
+ 3. outputting terminfo arrays finished: 1.607827
+1. dumping lexicon finished: 4.509080
+1. collection finished: 72.908699 doing 49530 documents; speed = 679.342804 documents/sec
+
+
+ls -l temp/index/
+total 279488
+-rw-r--r--   1 hp  hp    742552 Aug 20 12:02 docindex
+-rw-r--r--   1 hp  hp   2080260 Aug 20 12:02 docmeta
+-rw-r--r--   1 hp  hp         0 Aug 19 16:58 docterms
+-rw-r--r--   1 hp  hp   7731072 Aug 20 12:02 fsalex
+-rw-r--r--   1 hp  hp  10999816 Aug 19 17:29 lexicon
+-rw-r--r--   1 hp  hp     21745 Aug 19 17:29 lexicon.inx
+
+
+fsalex az uj, lexicon a regi.
 
 

@@ -28,7 +28,7 @@ let empty () = {
 	last_positions  = [];
 	buffer = BlockList.Int.create () ;
 	}
-	
+
 let last_doc ti = ti.last_doc;;
 	
 	
@@ -45,7 +45,19 @@ let flush_last ti =
 let doclist ti = 
 	flush_last ti;
 	ti.buffer;;
-		
+
+(* letrehoz egy egy hosszu docList-et *)
+
+			
+let create doc pos =
+	{
+	df              = 1;
+	tf              = 1;
+	last_doc        = doc;
+	last_positions  = pos::[];
+	buffer = BlockList.Int.create () ;
+	}
+	
 let occurrence ti doc pos =
 	ti.tf <- succ ti.tf ; 
 	if ti.last_doc != doc then 
@@ -90,8 +102,8 @@ let pretty_print term ti =
 (** ha egyszer kiirtad, tobbet nem hasznalhatod!*)
 let write oc  ti =
 	flush_last ti;
-    Io.output_vnatint oc ti.df;
-    Io.output_vnatint oc ti.tf;
+  Io.output_vnatint oc ti.df;
+  Io.output_vnatint oc ti.tf;
 	BlockList.Int.iter (Io.output_vnatint oc) ti.buffer
 	
 	
@@ -99,7 +111,8 @@ let write oc  ti =
 
 let read ic = 
 	let df =  try Io.input_vnatint ic with End_of_file -> raise End_of_terminfos  in
-    let tf = Io.input_vnatint ic in 
+  let tf = Io.input_vnatint ic in 
+
  	let buffer = BlockList.Int.create () in
 	for i = 1 to (df-1) do
 		(* doc_id *)

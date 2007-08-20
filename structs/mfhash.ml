@@ -7,8 +7,8 @@ module type S =
 	val empty : unit -> 'a t
 (*	val create_from : int -> ((key->'a->unit) -> unit) -> 'a t
   *)	 val create : ?move_to_front:bool -> ?do_resizing:bool -> int -> 'a t
-(*	val clear : 'a t -> unit
-	val copy :  'a t -> 'a  t
+	val clear : 'a t -> unit
+(*	val copy :  'a t -> 'a  t
 *)	val iter : (key -> 'a -> unit) -> 'a  t -> unit
     val fold : (key -> 'a -> 'b -> 'b) -> 'b -> 'a t  -> 'b
     val to_list : 'a t -> (key * 'a) list
@@ -21,6 +21,7 @@ module type S =
 	val update_all: 'a t -> (key -> 'a -> 'a) -> unit
 	val size : 'a t -> int
 	val array_size : 'a t -> int
+
   end
 
 module Make(H: Hashtbl.HashedType) : (S with type key = H.t) =

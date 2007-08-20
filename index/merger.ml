@@ -19,20 +19,24 @@ let flush m iter =
 	let temp_file = m.work_dir ^ "/merger.temp." ^ (string_of_int (List.length m.temp_files)) in
 	m.temp_files <- temp_file :: m.temp_files ;
 	let oc = open_out_bin temp_file in
+
 	iter (write_to_temp oc);
 	close_out oc
 ;;		
 
 let read_next_from_temp ic =
 	let term = Io.input_string ic in
+
 	let collected = DocList.Collector.read ic in
 	(term, collected)
 ;;
 		
 (* todo: itt derul ki, ha ures a fajl.*)
 let open_terminfo_stream file =
+	
 	let ic = open_in_bin file in
 	let (term, first) = read_next_from_temp ic in
+
 	{ic = ic; term = term; terminfo = first}
 	
 (** terminfo streambol felolvassa a kovetkezo terminfot. Ha nincs tobb, zarja a streamet.*)			
@@ -68,7 +72,7 @@ let get_top heap =
 	(term, ti, heap);;
 	
 let merge_tops heap  =
-	(* kivesszuk az elsot es ha meg van ugyanolyan termu, akkor hozzafuzzuk, majd kiirjuk *) 
+	(* kivesszuk az elsot es ha meg van ugyanolyan termu, akkor hozzafuzzuk, majd visszaadjuk *) 
 	let (term, merged_ti, heap) = get_top heap in
 	let rec aux heap =
 		try
@@ -100,7 +104,7 @@ let imerge writer files =
 	let heap = List.fold_left aux (Heap.empty) files in
 
 	(* amit elfogyasztunk *)
-    let rec loop heap =
+  let rec loop heap =
 		let (term, merged_terminfo, heap) = merge_tops heap in
 		let _ = writer term merged_terminfo in
 		loop heap
@@ -111,7 +115,7 @@ let imerge writer files =
 ;;
 
 let final_merge writer files =
-	imerge (InvIndex.write_term_entry writer) files;
+	imerge (writer) files;
 ;;		
 
 let merge writer m =

@@ -1,4 +1,5 @@
-
+module Make : InvIndex.Lexicon = struct
+	
 type fptr = Int64.t
 
 
@@ -109,5 +110,7 @@ let add lw term df tf pos =
 		lw.last_block_start <- start_pos
 	end
 	
+end
+
 end
 
