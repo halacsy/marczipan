@@ -29,6 +29,7 @@ end
 
 
 module Make (TermLexicon : Lexicon )  = struct 
+
 	module Writer : Writer = struct
 (** a term lookup table-t kezeli *)
 type t = 
@@ -43,6 +44,7 @@ let create index_dir =
 		doclist_oc = open_out_bin (index_dir ^ "/" ^ "postings");
 	  lexicon_writer = TermLexicon.Writer.create index_dir;
 	} 
+
 
 let write_term_entry w term terminfo =
 	flush w.doclist_oc;
