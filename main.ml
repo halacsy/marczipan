@@ -5,6 +5,8 @@ module TermLexicon = FileBasedLexicon.Make
 module InvIndex = InvIndex.Make(TermLexicon)
 
 module Inverter = Inverter.Make(InvIndex.Writer)
+module IndexReader = InvIndex.Reader
+module Searcher = Searcher.Make(InvIndex.Reader)
 
 let proc_sentence ii sentence =
 		let st = String.concat " " (List.map (fun (w,_) -> w) sentence) in
@@ -17,9 +19,9 @@ let proc_sentence ii sentence =
 		in
         let n = List.fold_left aux 0 sentence in
 		Inverter.end_doc  ii doc_handler
-	
+	 
 ;;
-
+ 
 let dump_lexicon index_dir = 
 	let lic =  open_in_bin (index_dir ^ "/" ^ "lexicon") in
 	let rec loop () = 
@@ -33,16 +35,30 @@ let dump_lexicon index_dir =
 	try
 	 loop () 
  	with End_of_file -> ()
+
+
+let query index_dir =
 	
+	let ii = IndexReader.open_reader index_dir in
+	let fi = ForIndex.open_reader index_dir in
+	let result = Searcher.search ii fi ("hullad�k"::[]) in
+	let print_doc (docid, w) = 
+		let di = ForIndex.doc_info fi docid in
+		let meta = ForIndex.doc_meta fi di in
+		Printf.printf "%f %s\n" w (DocMeta.get_string meta 0); 	
+	in
+	List.iter print_doc result;
+;;
+
 let search index_dir  =
-	let ii = InvIndex.open_reader index_dir in
+	let ii = IndexReader.open_reader index_dir in
 	  Printf.printf "ii opened";
 (*	InvIndex.pretty_print ii;
 *)	let fi = ForIndex.open_reader index_dir in
 	let t = Timem.init () in
 	let search term = 
 	Timem.start t ("searching " ^ term);
-	let (df, tf, open_stream) = InvIndex.term_info ii term in
+	let (df, tf, open_stream) = IndexReader.term_info ii term in
 	Printf.printf "term %s df tf %d %d\n" term df tf ;
 	let doc_stream = open_stream () in
 	Timem.finish t ;
@@ -86,8 +102,8 @@ let dump_index index_dir =
 
 
 let print_stat index_dir =
-	let ii = InvIndex.open_reader index_dir in
-	Printf.printf "unique tokens: %d\n" (InvIndex.tokens ii);
+	let ii = IndexReader.open_reader index_dir in
+	Printf.printf "unique tokens: %d\n" (IndexReader.tokens ii);
 ;;
 
 let index indexdir limit =
@@ -127,7 +143,7 @@ let dump tempfile =
 ;;
 
 let usage () = 
-	Printf.eprintf "usage : %s index-dir build tok-limit | indexmh tok-limit | search | dump-temp | dump-index | stat \n" Sys.argv.(0)
+	Printf.eprintf "usage : %s index-dir build tok-limit | indexmh tok-limit | search | dump_lexicon | dump-index | stat \n" Sys.argv.(0)
 ;;
 	
 let _ =	
@@ -137,6 +153,7 @@ else
 	let indexdir = Sys.argv.(1) in
 	match Sys.argv.(2) with
 		"build" -> index indexdir  (int_of_string Sys.argv.(3))
+		| "query" -> query indexdir
 		|"indexmh" -> index_mh indexdir  (int_of_string Sys.argv.(3))
     
 	 |  "dump-index" -> dump_index indexdir
