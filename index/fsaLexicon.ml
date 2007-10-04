@@ -51,6 +51,17 @@ module Make : InvIndex.Lexicon = struct
 		let p = lex.pa.(ix) in
 		(tf, df, p)
 	
+	
+	let iter  f lex =
+		let doTerm term ix =
+			let tf = lex.tfa.(ix) in
+			let df = lex.dfa.(ix) in
+			let p = lex.pa.(ix) in
+			f term tf df p
+		in
+		Compact_fsa.iter doTerm lex.fsa 
+		;;
+		
 	module Writer = struct
 		type t =
 			{

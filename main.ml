@@ -1,6 +1,6 @@
 module TermLexicon = FileBasedLexicon.Make
-
-(*module TermLexicon = FsaLexicon.Make
+(*
+module TermLexicon = FsaLexicon.Make
 *)
 module InvIndex = InvIndex.Make(TermLexicon)
 
@@ -23,25 +23,19 @@ let proc_sentence ii sentence =
 ;;
  
 let dump_lexicon index_dir = 
-	let lic =  open_in_bin (index_dir ^ "/" ^ "lexicon") in
-	let rec loop () = 
-		let term = Io.input_string lic in
-		let df   = input_binary_int lic in
-		let tf   = input_binary_int lic in
-		let pos  = Io.input_vint64 lic in
-        Printf.printf "%s\t%d\t%d\n" term df tf;
-		loop ()
+	let lexicon = TermLexicon.init index_dir in
+	let print_term term tf df pos =
+		List.iter print_char term;
+		Printf.printf "\t%d\t%d\n"  tf df;
 	in
-	try
-	 loop () 
- 	with End_of_file -> ()
+	TermLexicon.iter print_term lexicon
 
 
 let query index_dir =
 	
 	let ii = IndexReader.open_reader index_dir in
 	let fi = ForIndex.open_reader index_dir in
-	let result = Searcher.search ii fi ("hulladï¿½k"::[]) in
+	let result = Searcher.search ii fi ("hulladék"::"zöld"::[]) in
 	let print_doc (docid, w) = 
 		let di = ForIndex.doc_info fi docid in
 		let meta = ForIndex.doc_meta fi di in
@@ -103,7 +97,7 @@ let dump_index index_dir =
 
 let print_stat index_dir =
 	let ii = IndexReader.open_reader index_dir in
-	Printf.printf "unique tokens: %d\n" (IndexReader.tokens ii);
+	Printf.printf "tokens: %d\n" (IndexReader.token_count ii);
 ;;
 
 let index indexdir limit =

@@ -3,10 +3,11 @@ module DocMap = Mfhash.Int
 module Make (Reader : InvIndex.Reader ) = struct
 	type query = string list
 
-	let total_count = 1000000.;;
 	let alpha = 0.5;;
 
 	let search index forIndex query =
+
+		let total_count = float_of_int  (Reader.token_count index) in
 		let docMap = DocMap.empty () in
 		let for_each term =
 			let (tf, df, open_stream) = Reader.term_info index term in
