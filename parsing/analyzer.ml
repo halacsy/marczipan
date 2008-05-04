@@ -3,7 +3,7 @@ module Hash = Mfhash.String
 let stopwords = Hash.empty ()
 
 let _ =
-	let ic = open_in_bin "/Users/hp/work/data/ir/hungarianstopword.txt" in
+	let ic = open_in_bin "data/hungarianstopword.txt" in
 	try
 		while(true) do
 			let w = input_line ic in
