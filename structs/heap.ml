@@ -39,6 +39,16 @@ let consume_tops heap =
 		| _ -> (prio, elt::l, tail)
 	in
 	aux [] heap
+	
+let rec fold  f w heap =
+	match heap with
+		| Empty -> w
+		| Node(prio, elt, left, right) ->
+			let w = fold f w left in
+			let w = f w elt in
+			let w = fold f w right in
+			w
+;;
 (*
 let _ =
 	let heap = empty in

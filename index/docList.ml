@@ -71,7 +71,7 @@ struct
 		assert (ti1.last_doc < ti2.last_doc);
 		flush_last ti1;
 		ti1.df <- ti1.df + ti2.df;
-		ti1.tf <- ti1.tf + ti1.tf;
+		ti1.tf <- ti1.tf + ti2.tf;
 		ti1.last_doc <- ti2.last_doc;
 		ti1.last_positions <- ti2.last_positions;
 		BlockList.Int.append ti1.buffer ti2.buffer
@@ -156,7 +156,7 @@ let open_stream t =
 exception End_of_stream;;
 let next_doc s =
 	(* doc_id, freq, pos1, pos2, pos3 *)
-	let doc_id = try BlockList.Int.next s.block_stream with BlockList.Int.End_of_stream -> raise End_of_stream in
+let doc_id = try BlockList.Int.next s.block_stream with BlockList.Int.End_of_stream -> raise End_of_stream in
 	let freq = BlockList.Int.next s.block_stream in
 	BlockList.Int.skip s.block_stream (freq );
 	(doc_id, freq)

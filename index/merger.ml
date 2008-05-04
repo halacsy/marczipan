@@ -26,8 +26,8 @@ let flush m iter =
 
 let read_next_from_temp ic =
 	let term = Io.input_string ic in
-
 	let collected = DocList.Collector.read ic in
+	
 	(term, collected)
 ;;
 		
@@ -74,6 +74,7 @@ let get_top heap =
 let merge_tops heap  =
 	(* kivesszuk az elsot es ha meg van ugyanolyan termu, akkor hozzafuzzuk, majd visszaadjuk *) 
 	let (term, merged_ti, heap) = get_top heap in
+
 	let rec aux heap =
 		try
 			let (nterm, docid) = Heap.top_prior heap in

@@ -1,7 +1,8 @@
-module TermLexicon = FileBasedLexicon.Make
 (*
-module TermLexicon = FsaLexicon.Make
+module TermLexicon = FileBasedLexicon.Make
 *)
+module TermLexicon = FsaLexicon.Make
+
 module InvIndex = InvIndex.Make(TermLexicon)
 
 module Inverter = Inverter.Make(InvIndex.Writer)
@@ -35,7 +36,7 @@ let query index_dir =
 	
 	let ii = IndexReader.open_reader index_dir in
 	let fi = ForIndex.open_reader index_dir in
-	let result = Searcher.search ii fi ("hulladék"::"zöld"::[]) in
+	let result = Searcher.search ii fi ("hulladï¿½k"::"zï¿½ld"::[]) in
 	let print_doc (docid, w) = 
 		let di = ForIndex.doc_info fi docid in
 		let meta = ForIndex.doc_meta fi di in

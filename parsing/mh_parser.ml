@@ -35,9 +35,6 @@ let parse ic f =
   Xml_parser.set_character_data_handler parser data;
   Xml_parser.parse_channel parser ic
 ;;
- (*
-let _ =
-  let aux id content = Printf.printf "id = %s \n-------\n %s\n" id content
-  in
-  parse stdin aux
- *)
+ 
+
+

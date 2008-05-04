@@ -22,6 +22,9 @@ module Make : InvIndex.Lexicon = struct
 		{ terms = terms; positions = positions; lexicon_ic = open_in_bin (index_dir ^ "/" ^ "lexicon") }
 	;;
 
+	(* lusta voltam megirni*)
+  let iter f lex = ();;
+	
 (* Returns the offset of the greatest index entry which is less than or    *)
 (* equal to term.                                                          *)
 	let search_pos a term =
@@ -42,7 +45,7 @@ module Make : InvIndex.Lexicon = struct
 		done;
 		!hi
 	;;
- let iter f lex = ()
+
 	let find lex term =
 		let ix = search_pos lex.terms term in
 		let pos = if ix < 0 then 0L else lex.positions.(ix) in
@@ -60,6 +63,7 @@ module Make : InvIndex.Lexicon = struct
 		try
 			seek_term ()
 		with End_of_file -> raise Not_found
+
 	
 	module Writer =
 	struct

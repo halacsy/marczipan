@@ -342,16 +342,30 @@ belépőt 8185
 2007-07-08 
 Lucene keresés
 
-IndexSearcher csinálja a munkát. Searcher az apa, az hozza létre a search hívására a Hits-et, ami a hívótól, itt most IndexSearcher kéri le elsőször a 100 legjobb dokumentumot. A Hits-et kapja vissza az alkalmazás, abban lehet menni a találatok között. Ha valaki a 101-et kéri, akkor újra keresünk.
+IndexSearcher csinálja a munkát. Searcher az apa, az hozza létre a search hívására a Hits-et, ami a hívótól,
+ itt most IndexSearcher kéri le elsőször a 100 legjobb dokumentumot. 
+ A Hits-et kapja vissza az alkalmazás, abban lehet menni a találatok között. 
+ Ha valaki a 101-et kéri, akkor újra keresünk.
 Ezt még majd meg kell nézni miért jó.
 
-A Hits getMoreDocs()-ja hívódik, ha nincs elég dokumentum a Hits-ben. Ez lekér n darad találatot és beteszi egy tömbbe. A találatok relevanciáját normálja, hogy az elsőé 1-nél ne legyen nagyobb.
+A Hits getMoreDocs()-ja hívódik, ha nincs elég dokumentum a Hits-ben. 
+Ez lekér n darad találatot és beteszi egy tömbbe. 
+A találatok relevanciáját normálja, hogy az elsőé 1-nél ne legyen nagyobb.
 
-Hát szerintem semmi durva optimalizációt nem csinál. A Query át tudja magát alakítani Weight-é, amihez tartozik egy scorer. Például a TermScorer csinálja, ami a tfidf világban a dolga. A Similiraty meg a Scorer alapján számolja a query-doc hasonlóságot. Ha jól látom, akkor a TermDocs-ot olvasva tényleg végigmegy mindenen.
+Hát szerintem semmi durva optimalizációt nem csinál. A Query át tudja magát alakítani Weight-é, 
+amihez tartozik egy scorer. Például a TermScorer csinálja, ami a tfidf világban a dolga. 
+A Similiraty meg a Scorer alapján számolja a query-doc hasonlóságot. Ha jól látom, 
+akkor a TermDocs-ot olvasva tényleg végigmegy mindenen.
 
-TermScorer. Egy term súlyát adja meg a dokumentumokban. Megkapja a TermDocs-ot, Similarity-t. Végigmegy a dokumentumokon, kiolvassa 32-esevél a dokumentumokat és a tf értéket. Van egy cache-e scoreCache, amiben a valódi súlyokat cachelei 1..32 közötti tf értékekhez. Mert  sqrt(tf) értéket számol a defaultSimilarity és azt még szorozza a Term query-ben felvett súlyával. Megspórol egy gyökvonást és egy szorzást, ha a dokban a term 1..32-szor fordul elo.
+TermScorer. Egy term súlyát adja meg a dokumentumokban. Megkapja a TermDocs-ot, Similarity-t. 
+Végigmegy a dokumentumokon, kiolvassa 32-esevél a dokumentumokat és a tf értéket. 
+Van egy cache-e scoreCache, amiben a valódi súlyokat cachelei 1..32 közötti tf értékekhez.
+Mert  sqrt(tf) értéket számol a defaultSimilarity és azt még szorozza a Term query-ben felvett súlyával.
+Megspórol egy gyökvonást és egy szorzást, ha a dokban a term 1..32-szor fordul elo.
 
-A BooleanScorer2 a DisjunctionScrorer meg ConjuctionScorer-t használja. Utobbi az AND-nek felel meg. Egy láncolt listában tárolja a Scorereket úgy, hogy mindig előrébb legyen, aminek kisebb a köv docidje. Ne feledd egy Scorer is tudja a next-et, skipTo-t, mint a termDocs. Ezután 
+A BooleanScorer2 a DisjunctionScrorer meg ConjuctionScorer-t használja. Utobbi az AND-nek felel meg.
+Egy láncolt listában tárolja a Scorereket úgy, hogy mindig előrébb legyen, aminek kisebb a köv docidje. 
+Ne feledd egy Scorer is tudja a next-et, skipTo-t, mint a termDocs. Ezután 
 
 while (more && first().doc() < last().doc()) { // find doc w/ all clauses
   more = first().skipTo(last().doc());      // skip first upto last
@@ -495,4 +509,114 @@ total 279488
 
 fsalex az uj, lexicon a regi.
 
+2007. 10.4 ujabb meresek
+ujabb, 
 
+
+2008 aprilis
+
+teljes kor, clef testelessel
+cat ~/work/data/texts/mh2002/*.xml | iconv -f UTF-8 -t ISO-8859-2 -c | ./clef_tester.native index data
+
+erdekes modon most valamiert lassu (elfelejtettem memoriat allitani?)
+ speed = 262.732300 documents/sec
+ 
+aztan a kereses
+./clef_tester.native eval data/ ../data/ir/clef/hu/251-300.topics  > /tmp/clef251.result
+
+es nagyon rossz eredmenyt ad
+trec_eval  ~/work/data/ir/clef/hu/251-300.qrels  /tmp/clef251.result
+
+valami el van baszva
+num_rel         all     939
+num_rel_ret     all     172
+map             all     0.0742
+
+
+search2-ben a rendezes ki volt commentezve
+most egesz jok vagyunk
+num_rel         all     939
+num_rel_ret     all     662
+map             all     0.1956
+P10             all     0.2360
+
+llncs cikkben ezt adtuk meg lucene baselinenak
+
+2005 0.2153 0.2400 656/939
+
+p10ben es mapban is gyengebbek vagyunk, numrelretben meg nem.
+
+alfa = 0.1nel viszont mar
+num_rel_ret     all     661
+map             all     0.2020
+
+
+alfa= 0.08-nal
+num_rel_ret     all     665
+map             all     0.2084
+
+alfa =0.03
+num_rel_ret     all     664
+map             all     0.2102
+ezt most abbahagyom
+
+
+nezzuk meg gyorsan a trigrammot
+
+
+Trigram indexeles fut. Egyelore az analyer kapott egy analyze_ngram metodust
+a felere csokkent a sebesseg
+speed = 120.487855 documents/sec
+
+elso korben alfa= 0.03-nel pocsek
+num_rel_ret     all     426
+map             all     0.0391
+
+
+itt abbahogyom. furcsan rossz eredmeny. De kozben kiderult, h a doclennel nem normalizaltunk. Hatha az volt a baj.
+
+TODO: megnezni a legjobb 2005os mit is csinalt.
+
+
+megneztem Paul McNaim
+atlapolodo 4 gram. Nezzuk, miert lett ennyire pocsek
+
+
+bazdmeg, bazdmeg, bazdmeg
+visszatevo a doclen normalizaciot
+num_rel         all     939
+num_rel_ret     all     856
+map             all     0.3798
+
+
+TODO: 
+1. doclen szamitas okositasa
+2. szavak kozti atlapolodas merese
+
+doclen szamitast attettem. nem tudom sajnos, h ettol mennyit gyorsult
+
+semennyit, mert egy hashben volt, h mi milyen hosszu.
+sebaj.
+
+
+2. atlapolodas eseten ez van
+
+num_rel         all     939
+num_rel_ret     all     853
+map             all     0.3805
+
+ne felejtsuk el halacsy, tron legjobb 0.39 nagyon, nagyon kozel vagyunk
+
+megnezzuk gyorsan 4gramra
+durva eredmeny
+num_rel         all     939
+num_rel_ret     all     881
+map             all     0.4171
+
+mapban jobbak vagyunk mint McNamee
+
+alfa = 0.5-re mert o azt csinalta
+
+num_rel         all     939
+num_rel_ret     all     873
+map             all     0.4183

@@ -131,10 +131,8 @@ module Make (TermLexicon : Lexicon ) = struct
 		let term_info reader term =
 			let (df, tf, pos) = TermLexicon.find reader.lexicon term in
 			let open_stream () =
-				Timem.start reader.stopper "loading postings";
 				LargeFile.seek_in reader.doclist_ic pos;
 				let doclist = DocList.read reader.doclist_ic df in
-				Timem.finish reader.stopper;
 				DocList.open_stream doclist
 			in
 			(df, tf, open_stream)
