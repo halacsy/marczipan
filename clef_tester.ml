@@ -6,7 +6,9 @@ module Inverter = Inverter.Make(InvIndex.Writer)
 module IndexReader = InvIndex.Reader
 module Searcher = Searcher.Make(InvIndex.Reader)
 
+
 let analyze = Analyzer.iterate_ngram2 4
+let analyze = Analyzer.iterate
 
 let split c str =
 	let rec aux acc idx =

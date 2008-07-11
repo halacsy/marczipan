@@ -3,14 +3,15 @@ module type Lexicon = sig
 	type t
 	val init : string -> t
 	val find : t -> string -> int * int * int64
-	val iter : (char list -> int -> int -> int64 -> unit) -> t -> unit
+	val iter : (char list -> int -> int -> int -> int64 -> unit) -> t -> unit
+	val index : t -> string -> int
 	module Writer :
-sig
+  sig
 		type t
 		val create : string -> t
 		val close : t -> unit
 		val add : t -> string -> int -> int -> int64 -> unit
-end
+  end
 end
  
 module type Writer = sig
@@ -22,14 +23,17 @@ end
 
 module type Reader = sig
 	type t
+	type lexicon_t
 		(** opens a reader  *)
 	val open_reader : string -> t
-	val term_info :
-	t -> string -> int * int * (unit -> DocList.stream)
+	val term_info : t -> string -> int * int * (unit -> DocList.stream)
 	
 	val doc_count : t -> int
 	val token_count : t -> int
 	val type_count : t-> int
+	val lexicon : t -> lexicon_t
+	
+	val iter_over_terms : (char list -> int -> int -> int -> (unit -> DocList.stream) -> unit ) -> t -> unit
  
 end
 	
@@ -41,12 +45,12 @@ type collection_statistics = {
 	
 (* TODO, S-t bevenni *)
 module type S =
-	functor (TermLexicon : Lexicon) ->
 	sig
-	module Writer : Writer
+	  module Writer : Writer
+	  module Reader : Reader
 	end
 
-module Make (TermLexicon : Lexicon ) = struct
+module Make (TermLexicon : Lexicon ) : S = struct
 
 	module Writer : Writer = struct
   (** a term lookup table-t kezeli *)
@@ -91,12 +95,12 @@ module Make (TermLexicon : Lexicon ) = struct
 
 	end
 
-	module Reader : Reader = struct
-	
+	module Reader : Reader   = struct
+	  type lexicon_t = TermLexicon.t
 		type t =
 			{
 				doclist_ic : in_channel;
-				lexicon : TermLexicon.t;
+				lexicon : lexicon_t;
 				mutable tokens : int;
 				stopper : Timem.t;
 				statistics : collection_statistics;
@@ -137,6 +141,18 @@ module Make (TermLexicon : Lexicon ) = struct
 			in
 			(df, tf, open_stream)
 	
+	  let  iter_over_terms f reader =
+	    let aux term ix  df tf pos =
+	      let open_stream () =
+  				LargeFile.seek_in reader.doclist_ic pos;
+  				let doclist = DocList.read reader.doclist_ic df in
+  				DocList.open_stream doclist
+  			in
+  			f term ix df tf open_stream
+      in
+      TermLexicon.iter aux reader.lexicon
+    
+    let lexicon reader = reader.lexicon
 	end
 
 	end

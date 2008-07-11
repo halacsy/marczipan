@@ -620,3 +620,11 @@ alfa = 0.5-re mert o azt csinalta
 num_rel         all     939
 num_rel_ret     all     873
 map             all     0.4183
+
+
+Most kezdodik a tengerparton a kdtree kiserlet.
+
+export OCAMLRUNPARAM="b,i=640000,s=640000"
+
+csinaltunk egy indexet 
+cat ~/Work/Data/texts/mh200201*.xml | iconv -f UTF-8 -t ISO-8859-2 -c | ./clef_tester.native index data
