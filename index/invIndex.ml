@@ -26,7 +26,10 @@ module type Reader = sig
 	type lexicon_t
 		(** opens a reader  *)
 	val open_reader : string -> t
-	val term_info : t -> string -> int * int * (unit -> DocList.stream)
+	(* string-hez visszaadja df-t, tf-t es egy ()-> fuggvenyt, ami egy fuggvenyt ad vissza, amit ()-ra olvas egy
+	   doc_id, tf part
+	*)
+	val term_info : t -> string -> int * int * (unit ->(unit -> (int*int)))
 	
 	val doc_count : t -> int
 	val token_count : t -> int
@@ -35,6 +38,9 @@ module type Reader = sig
 	
 	val iter_over_terms : (char list -> int -> int -> int -> (unit -> DocList.stream) -> unit ) -> t -> unit
  
+  val term2index : t -> string -> int
+  
+  val find_term : t -> string -> int * int * int64
 end
 	
 type collection_statistics = {
@@ -137,7 +143,9 @@ module Make (TermLexicon : Lexicon ) : S = struct
 			let open_stream () =
 				LargeFile.seek_in reader.doclist_ic pos;
 				let doclist = DocList.read reader.doclist_ic df in
-				DocList.open_stream doclist
+				let stream = DocList.open_stream doclist in
+				let next () = DocList.next_doc stream  in
+				next
 			in
 			(df, tf, open_stream)
 	
@@ -153,6 +161,9 @@ module Make (TermLexicon : Lexicon ) : S = struct
       TermLexicon.iter aux reader.lexicon
     
     let lexicon reader = reader.lexicon
+    
+    let term2index reader  = TermLexicon.index reader.lexicon
+    let find_term reader = TermLexicon.find reader.lexicon
 	end
 
 	end

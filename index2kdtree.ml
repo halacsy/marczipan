@@ -4,7 +4,7 @@ module InvIndex = InvIndex.Make(TermLexicon)
 module Inverter = Inverter.Make(InvIndex.Writer)
 module IndexReader = InvIndex.Reader
 
-module Matrix = Ztree
+module Matrix = Kdmatrix.Make(Kdmatrix.TwoDTuple)
 
 let index_dir = "data/"
 
@@ -29,9 +29,9 @@ let _ =
   let lex = IndexReader.lexicon ii in
   IndexReader.iter_over_terms term ii;
   prerr_endline "constructing tree";
-  let tree = Ztree.create_from_list !points in
+  let tree = Matrix.create_from_list !points in
   prerr_endline "constructed";
-  let oc = open_out_bin "data/zmatrix" in
+  let oc = open_out_bin "data/kdmatrix" in
   Marshal.to_channel oc tree [];
   close_out oc;
   

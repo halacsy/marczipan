@@ -628,3 +628,65 @@ export OCAMLRUNPARAM="b,i=640000,s=640000"
 
 csinaltunk egy indexet 
 cat ~/Work/Data/texts/mh200201*.xml | iconv -f UTF-8 -t ISO-8859-2 -c | ./clef_tester.native index data
+
+
+Na most amszterdamban vagyunk
+
+tehat a fentivel indexeltunk. vigyazz, ez csak egy honap!
+
+aztan kdindex
+ocamlbuild index2kdtree.native --
+
+itt ulok amszterdamban. es nincs eval adatum. pedig vegirtam, h most a kdmatrixxal keresunk
+
+beirtam fake adatokat, mindket index ugyanazt adja ki. Ez jo hir, nagyon jo hir
+
+most lemerem 50 futasra az idot
+figyelj, elsore a  teljes initet merem
+
+regi index 22sec
+kdindex 49sec
+
+na, probalkozzunk ket dologgal
+1. index initet nem merjuk bele
+2. sokkal nagyobb indexxel
+
+
+igy viszont
+regi index real	0m1.951s
+kdindex 0m2.467s
+
+meg mindig lassabb
+
+csinaljunk teljes indexet
+
+collection finished: 81.242259 doing 49530 documents; speed = 609.658084 documents/sec
+
+real	1m41.562s
+user	1m19.060s
+sys	0m9.099s
+
+ujra kell epiteni a matrixot
+ocamlbuild index2kdtree.ml --
+
+egyebkent, most meglatjuk, befer-e
+
+erdekes modon csak ketszer akkor a matrix marshallal, mint a posting list (igaz a postingban vannak poziciok is)
+-rw-r--r--  1 hp  staff  100563928 Aug 30 20:53 kdmatrix
+-rw-r--r--  1 hp  staff   45744522 Aug 30 20:39 postings
+
+kd index
+time ./clef_tester.native eval data/ fake_queries  > /tmp/kdindex.out
+1. loading doc stats started
+1. loading doc stats finished: 0.134534
+51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 51 
+real	0m9.685s
+
+regin index
+real	0m5.935s
+
+bassza meg. gyorsabb a regi
+
+megnezzuk 500-ra (eddig 50 kereses volt)
+real	0m44.249s
+

@@ -3,9 +3,13 @@ module TermLexicon = FsaLexicon.Make
 module InvIndex = InvIndex.Make(TermLexicon)
 
 module Inverter = Inverter.Make(InvIndex.Writer)
+module IndexReader = Kdindex.Reader(InvIndex.Reader)
+module Searcher = Searcher.Make(Kdindex.Reader(InvIndex.Reader))
+
+(*
 module IndexReader = InvIndex.Reader
 module Searcher = Searcher.Make(InvIndex.Reader)
-
+*)
 
 let analyze = Analyzer.iterate_ngram2 4
 let analyze = Analyzer.iterate
@@ -93,7 +97,11 @@ let eval index_dir topicfile =
 		in
 		print_doc 0 result;
 	in
+	begin
+	  for i = 0 to 50 do
 	List.iter process_topic topics
+done 
+end
 ;;
 
 let usage () =
@@ -106,5 +114,6 @@ let _ =
 	else
 		match Sys.argv.(1) with
 			| "index" -> index_mh Sys.argv.(2) 100000000
-			| _ -> eval Sys.argv.(2) Sys.argv.(3)
- 
+			| _ -> 
+			  eval Sys.argv.(2) Sys.argv.(3)
+		  

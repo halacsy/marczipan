@@ -16,7 +16,7 @@ module Make (Reader : InvIndex.Reader ) = struct
 		coll_prob : float;
 		mutable curr_docid : int;
 		mutable curr_doc_prob : freq_prob;
-		doc_stream : DocList.stream
+		doc_stream : unit -> (int * int)
 		}
  
  (* ha jol ertem, amit itt csinaltam, de vajon mikor, akkor egy heapben taroljuk a term_doc_listeket
@@ -32,7 +32,7 @@ module Make (Reader : InvIndex.Reader ) = struct
 		let total_count = float_of_int (Reader.token_count index) in
 
 		let step term_doc_list =
-			let (docid, freq) = DocList.next_doc term_doc_list.doc_stream in
+			let (docid, freq) =  term_doc_list.doc_stream () in
 
 		
 			term_doc_list.curr_docid <- docid;
@@ -165,7 +165,7 @@ module Make (Reader : InvIndex.Reader ) = struct
 	
 				try
 					while true do
-						let (docid, freq) = DocList.next_doc doc_stream in
+						let (docid, freq) =  doc_stream () in
 						for_each docid freq
 					done;
 				with DocList.End_of_stream -> ()
