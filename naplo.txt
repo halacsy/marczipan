@@ -690,3 +690,43 @@ bassza meg. gyorsabb a regi
 megnezzuk 500-ra (eddig 50 kereses volt)
 real	0m44.249s
 
+kdindexes
+real	0m55.079s
+
+Tehat meg igy is lassabb. nezzuk miert
+
+
+atmentem a krusora. es valodi 50 kerdessel, stop word listaval dolgozom
+
+2x50 kereses
+matrixal 13.138s
+regivel real	0m8.381s
+
+
+structs/analyzer.ml index/docMeta.ml index/forIndex.ml structs/fsaLexicon.ml index/invIndex.ml index/inverter.ml index/kdindex.ml index/lexing.ml parsing/mh_parser.ml 
+index/searcher.ml parsing/tokenizer.ml
+
+
+most megprobalom bytekod profilingot. InvIndex searcher 28478 docid-t talalt. Ehhez 6 seek kellett. Atlagban kabe ketto a a doclist hossza / docid.
+
+Kd-nal a 28478 docid rendezesese osszesen 484048 lepes volt
+
+megprobaljuk
+1. a sortot stable_sort -ra cserelni
+2. a compare-t lecsereleni jobbra
+
+
+Ujra Budapesten. Szept 20. Megprobaljuk ujra merni a dolgokat
+KD faval
+1. search finished: 10.848833 doing 50 query; speed = 4.608791 query/sec
+1. search finished: 7.780176 doing 50 query; speed = 6.426590 query/sec
+
+hat nem mukodott a trec_eval, mert C251 volt a topic id, de a qrel fajlban csak 251
+
+most ket dolog van: sima indexre tok kicsi a map, de ami bantobb kdindexre duplikatumok vannak a kimenetben
+286     Q0      MH-20020720-089
+
+valamiert a 286-os queryre a docid=29257 ketszer jon elo.
+
+ugy nez ki egyszeruen magamat szivatom: kimaradt a kdindexbol ez, mert amszterdamban teszteltem
+   Array.stable_sort (fun (a,_) (b,_) ->  a - b) res;

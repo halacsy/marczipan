@@ -9,7 +9,7 @@ let prob fp = match fp with
 module Make (Reader : InvIndex.Reader ) = struct
 	type query = string list
 
-	let alpha = 0.5;;
+	let alpha = 0.1;;
 
 	type term_doc_list =
 		{ term : string;

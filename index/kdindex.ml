@@ -28,7 +28,7 @@ module Reader(IIndex:InvIndex.Reader):InvIndex.Reader =
     in
     TwoDMatric.query f (term_ix, 0) (term_ix + 1, 10000000) r.tree;
     let res = Array.of_list !res in
-    Array.sort (fun (a,_) (b,_) -> compare a b) res;
+      Array.stable_sort (fun (a,_) (b,_) ->  a - b) res;
     (* van open, mert diszkre is tudunk dolgozni *)
     let open_stream () =
       let ix = ref 0 in

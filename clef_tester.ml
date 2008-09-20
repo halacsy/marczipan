@@ -7,9 +7,10 @@ module IndexReader = Kdindex.Reader(InvIndex.Reader)
 module Searcher = Searcher.Make(Kdindex.Reader(InvIndex.Reader))
 
 (*
-module IndexReader = InvIndex.Reader
+  module IndexReader = InvIndex.Reader
 module Searcher = Searcher.Make(InvIndex.Reader)
 *)
+
 
 let analyze = Analyzer.iterate_ngram2 4
 let analyze = Analyzer.iterate
@@ -91,16 +92,17 @@ let eval index_dir topicfile =
 					| (docid, w) :: tail ->
 						let di = ForIndex.doc_info fi docid in
 						let meta = ForIndex.doc_meta fi di in
-						Printf.printf "%s\tQ0\t%s\t%d\t%f\tSTANDARD\n" id (DocMeta.get_string meta 0) i w;
+						Printf.printf "%s\tQ0\t%s\t%d\t%f\tSTANDARD\n" id (DocMeta.get_string meta 0)  i w;
 						print_doc (i + 1) tail;
 					| _ -> ()
 		in
 		print_doc 0 result;
 	in
 	begin
-	  for i = 0 to 50 do
-	List.iter process_topic topics
-done 
+	  let t = Timem.init() in
+	  Timem.start t "search";
+    List.iter process_topic topics;
+    Timem.finish_speed t (List.length topics) "query" ;
 end
 ;;
 

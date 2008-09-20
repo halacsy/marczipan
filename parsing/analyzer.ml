@@ -56,11 +56,11 @@ let iterate_ngram2 len f lexbuf =
       f (Tokenizer.Token ((String.sub s i len), "", 0, 0))
     done
 
-
+(*
 let _ =
   let aux (Tokenizer.Token (s, _, _ , _)) =
     print_endline s 
   in
   iterate_ngram2 4 aux (Lexing.from_string "csak mindent at kell alakitani igy")
 
-  
+  *)
