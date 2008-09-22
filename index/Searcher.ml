@@ -28,7 +28,7 @@ module Make (Reader : InvIndex.Reader ) = struct
    
     *)
 	let score_docs f index forIndex query =
-
+    
 		let total_count = float_of_int (Reader.token_count index) in
 
 		let step term_doc_list =
