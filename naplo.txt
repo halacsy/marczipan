@@ -730,3 +730,18 @@ valamiert a 286-os queryre a docid=29257 ketszer jon elo.
 
 ugy nez ki egyszeruen magamat szivatom: kimaradt a kdindexbol ez, mert amszterdamban teszteltem
    Array.stable_sort (fun (a,_) (b,_) ->  a - b) res;
+
+most mar minden oke. Akkor nezzuk miert lett
+map            	all	0.0973
+
+Na vegre. Hat UTF-8 volt a topic fajl. Tanulsag, sohase veszitsd el.
+
+
+most stop wordokkel es teljes indexxel probaljuk
+invertalt index
+speed = 15.124937 query/sec
+kd fara
+; speed = 11.203518 query/sec
+
+101 reviziot beraktam!
+

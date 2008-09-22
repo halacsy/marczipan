@@ -3,14 +3,17 @@ module TermLexicon = FsaLexicon.Make
 module InvIndex = InvIndex.Make(TermLexicon)
 
 module Inverter = Inverter.Make(InvIndex.Writer)
-module IndexReader = Kdindex.Reader(InvIndex.Reader)
+(*module IndexReader = Kdindex.Reader(InvIndex.Reader)
 module Searcher = Searcher.Make(Kdindex.Reader(InvIndex.Reader))
-
+*)
 (*
+
   module IndexReader = InvIndex.Reader
 module Searcher = Searcher.Make(InvIndex.Reader)
 *)
 
+module IndexReader = Inmemory_invindex.Reader(InvIndex.Reader)
+module Searcher = Searcher.Make(Inmemory_invindex.Reader(InvIndex.Reader))
 
 let analyze = Analyzer.iterate_ngram2 4
 let analyze = Analyzer.iterate

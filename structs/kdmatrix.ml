@@ -150,10 +150,13 @@ module TwoDTuple  = struct
   let compare_coord axis d1 d2 =
     let (d11, d12), (d21, d22) = d1, d2 in
     if axis = 0 then
-      compare d11 d21
+    (*  compare d11 d21*)
+      d11 - d21
     else
-      compare d12 d22
-    
+  (*    compare d12 d22
+    *)
+      d12 - d22
+      
   let kd_compare d1 d2 =  
     let (d11, d12), (d21, d22) = d1, d2 in
     if d11 <= d21 && d12 <= d22 then LE
